@@ -297,14 +297,26 @@ ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<ThankYouTwea
     }, true);
   }
 
-  /* ---------- 2. Private / large event inquiry -> Lead ---------- */
+  /* ---------- 2. Private / large event inquiry -> Lead ----------
+     The form is novalidate and this listener runs in the capture phase,
+     i.e. BEFORE the page's own validation. So we mirror that validation
+     here and only fire Lead once per page load — otherwise every failed
+     attempt (blank phone, bad email, double-tap) was counted as a lead. */
   var eventForm = document.getElementById('eventForm');
+  var eventLeadSent = false;
   if (eventForm) {
     eventForm.addEventListener('submit', function () {
+      if (eventLeadSent) { return; }
+      var evName  = val('#evName');
+      var evEmail = val('#evEmail');
+      var evPhone = val('#evPhone');
+      if (!evName || !evPhone || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(evEmail)) { return; }
+      eventLeadSent = true;
+
       var guests = parseInt(val('#evGuests'), 10);
       if (!guests || isNaN(guests)) { guests = 0; }
 
-      identify(val('#evEmail'), val('#evPhone'), val('#evName'));
+      identify(evEmail, evPhone, evName);
       track('Lead', {
         content_name:     'Private Event Inquiry',
         content_category: 'Private Events',
@@ -350,7 +362,10 @@ ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<ThankYouTwea
       });
 
     } else if (/toasttab\.com\/.*marketing-signup/i.test(href)) {
-      track('Lead', {
+      /* Newsletter link click. Was 'Lead' — that made every footer
+         "Sign Up" click count as a private-event lead in Ads Manager.
+         'Subscribe' keeps it measurable without polluting Lead. */
+      track('Subscribe', {
         content_name:     'Newsletter Signup',
         content_category: 'Email List'
       });
