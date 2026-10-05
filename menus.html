@@ -31,6 +31,7 @@
 <meta name="ext-resource-dependency" content="assets/happy-hour-menu.pdf" data-resource-id="happyHourPdf">
 <meta name="ext-resource-dependency" content="assets/dessert-specials.pdf" data-resource-id="dessertPdf">
 <meta name="ext-resource-dependency" content="assets/kids-menu.pdf" data-resource-id="kidsPdf">
+<meta name="ext-resource-dependency" content="assets/cocktails-menu.pdf" data-resource-id="cocktailsPdf">
 <style>
   /* ---- Menus page ---- */
   .page-hero{ position:relative; min-height:58vh; display:flex; align-items:center; justify-content:center; text-align:center; overflow:hidden; }
@@ -50,7 +51,7 @@
   .menus-intro h2{ margin-bottom:22px; }
   .menus-intro .lead{ margin:0 auto; max-width:60ch; }
 
-  .menu-tiles{ display:grid; grid-template-columns:repeat(4,1fr); gap:26px; margin-top:60px; }
+  .menu-tiles{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:26px; margin-top:60px; }
   .menu-tile{ display:flex; flex-direction:column; align-items:center; text-align:center;
     background:linear-gradient(180deg,rgba(27,21,18,.7),rgba(20,15,12,.5));
     border:1px solid var(--line); border-radius:6px; padding:54px 38px 46px;
@@ -224,6 +225,15 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
 
       <article class="menu-tile reveal">
         <span class="ring" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16l-8 9v6m0 0h-3m3 0h3M4 4l8 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <h3>Cocktails</h3>
+        <p>Signature cocktails, house infusions, and bar classics, poured with flair at our main bar.</p>
+        <a class="btn btn-gold" href="assets/cocktails-menu.pdf" target="_blank" rel="noopener">View Menu</a>
+      </article>
+
+      <article class="menu-tile reveal">
+        <span class="ring" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none"><path d="M4 16h16M5 16c0-4 3-7 7-7s7 3 7 7M9 9V6.5M12 9V6M15 9V6.5M6.5 20h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </span>
         <h3>Dessert &amp; After Dinner</h3>
@@ -294,6 +304,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
           <li><a href="assets/brunch-menu.pdf" target="_blank" rel="noopener">Brunch Menu</a></li>
           <li><a href="assets/dinner-menu.pdf" target="_blank" rel="noopener">Dinner Menu</a></li>
           <li><a href="assets/happy-hour-menu.pdf" target="_blank" rel="noopener">Happy Hour Menu</a></li>
+          <li><a href="assets/cocktails-menu.pdf" target="_blank" rel="noopener">Cocktails Menu</a></li>
           <li><a href="assets/dessert-specials.pdf" target="_blank" rel="noopener">Dessert &amp; After Dinner</a></li>
           <li><a href="assets/kids-menu.pdf" target="_blank" rel="noopener">Kids Menu</a></li>
           <li><a href="gift-cards.html">Gift Cards &amp; Rewards</a></li>
@@ -392,7 +403,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
 <script>
 /* Standalone export: once the bundler has unpacked the inlined PDFs, point the menu links at the blob URLs. No-op on the live site. */
 (function () {
-  var map = { 'assets/dinner-menu.pdf': 'dinnerPdf', 'assets/brunch-menu.pdf': 'brunchPdf', 'assets/happy-hour-menu.pdf': 'happyHourPdf', 'assets/dessert-specials.pdf': 'dessertPdf', 'assets/kids-menu.pdf': 'kidsPdf', 'assets/ember-menu.png': 'emberMenu' };
+  var map = { 'assets/dinner-menu.pdf': 'dinnerPdf', 'assets/brunch-menu.pdf': 'brunchPdf', 'assets/happy-hour-menu.pdf': 'happyHourPdf', 'assets/dessert-specials.pdf': 'dessertPdf', 'assets/cocktails-menu.pdf': 'cocktailsPdf', 'assets/kids-menu.pdf': 'kidsPdf', 'assets/ember-menu.png': 'emberMenu' };
   var tries = 0;
   function rewrite() {
     var r = window.__resources;
