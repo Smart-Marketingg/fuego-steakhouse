@@ -12,9 +12,12 @@
 ## Hours
 - Monday–Thursday: 11:00 AM – 11:00 PM
 - Friday: 11:00 AM – 2:00 AM
-- Saturday: 9:00 AM – 2:00 AM
-- Sunday: 9:00 AM – 10:00 PM
-- Brunch served on weekends
+- Saturday: 10:00 AM – 2:00 AM
+- Sunday: 10:00 AM – 10:00 PM
+- Main Menu: served all day, every day
+- Lunch Specials: Monday–Friday, 11:00 AM – 4:00 PM
+- Brunch: Saturday & Sunday, 10:00 AM – 4:00 PM
+- Late Night Menu: Friday & Saturday, 12:00 AM – 1:30 AM
 
 ## Pages
 - [Home](https://www.fuegosteaks.com/): Overview of the restaurant — steaks, brunch, cocktails, entertainment and events.
