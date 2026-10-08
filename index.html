@@ -140,6 +140,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
     var romero18Ends = Date.parse('2026-09-19T04:00:00Z');
     var latin19Ends = Date.parse('2026-09-20T04:00:00Z');
     var tulumEnds = Date.parse('2026-10-05T04:00:00Z');
+    var latinOct10Ends = Date.parse('2026-10-11T04:00:00Z');
     var img = document.getElementById('promoImg');
     var link = document.getElementById('promoLink');
     if (now < latinEnds) {
@@ -198,6 +199,11 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
       img.src = 'assets/promo-tulum-oct4.jpg';
       img.alt = 'Tulum Mexican Brunch — Sunday October 4, 2026, 12:00 PM to 3:00 PM. Mariachis, live DJ, Baile Folclorico. $45 per person, no liquor included. 921 John F. Kennedy Blvd, North Bergen, NJ.';
       link.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=2026-10-04T12:00&partySize=2';
+      open();
+    } else if (now < latinOct10Ends) {
+      img.src = 'assets/promo-latinvibe-oct10.jpg';
+      img.alt = 'Latin Vibe Saturday — Saturday October 10th, music by DJ AlexPro. Music from 9 PM, free parking, no cover. 921 JFK Blvd, North Bergen, NJ. Reservations: 201-455-6055.';
+      link.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=2026-10-10T21:00&partySize=2';
       open();
     } else {
       /* Evergreen: Ladies' Night — every Thursday 7–11 PM. Prefills the next Thursday at 7 PM. */
@@ -387,6 +393,9 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
           </a>
           <a class="upcoming-flyer" href="https://www.opentable.com/restref/client/?rid=1473520&amp;dateTime=2026-10-04T12%3A00&amp;partySize=2" target="_blank" rel="noopener" data-ends="2026-10-05T04:00:00Z">
             <img src="assets/promo-tulum-oct4.jpg" alt="Tulum Mexican Brunch — Sunday October 4, 2026, 12:00 PM to 3:00 PM. Mariachis, live DJ, Baile Folclorico. $45 per person, no liquor included. 921 John F. Kennedy Blvd, North Bergen, NJ." loading="lazy">
+          </a>
+          <a class="upcoming-flyer" href="https://www.opentable.com/restref/client/?rid=1473520&amp;dateTime=2026-10-10T21%3A00&amp;partySize=2" target="_blank" rel="noopener" data-ends="2026-10-11T04:00:00Z">
+            <img src="assets/promo-latinvibe-oct10.jpg" alt="Latin Vibe Saturday — Saturday October 10th, music by DJ AlexPro. Music from 9 PM, free parking, no cover. 921 JFK Blvd, North Bergen, NJ. Reservations: 201-455-6055." loading="lazy">
           </a>
           <a class="upcoming-flyer" id="ladiesNightFlyer" href="https://www.opentable.com/restref/client/?rid=1473520" target="_blank" rel="noopener">
             <img src="assets/promo-ladies-night.jpg" alt="Fuego Ladies&#8217; Night — every Thursday, 7 PM to 11 PM. Ladies receive their first cocktail complimentary. Live DJ — DJ OZ. So grab your girls and make Thursday your night at Fuego. (201) 455-6055, 921 John F. Kennedy Blvd, North Bergen, NJ." loading="lazy">
