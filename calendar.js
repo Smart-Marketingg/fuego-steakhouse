@@ -10,7 +10,7 @@
   /* recurring weekly events shown to guests */
   var RECURRING = [
     { title: 'Social Night',   time: '3:00 PM – 6:00 PM',  weekday: 4 },
-    { title: 'Happy Hour',     time: '12:00 PM – 7:00 PM', weekdays: [1, 2, 3, 4, 5] },
+    { title: 'Happy Hour',     time: '2:00 PM – 6:00 PM', weekdays: [1, 2, 3, 4, 5] },
     { title: 'Lunch Specials', time: '11:00 AM – 4:00 PM', weekdays: [1, 2, 3, 4, 5] },
     { title: 'Brunch', time: '10:00 AM – 4:00 PM', weekdays: [0, 6] }
   ];
