@@ -93,6 +93,16 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
       <img id="promoImg" src="assets/promo-romero.jpg" alt="">
       <video id="promoVid" muted autoplay loop playsinline preload="auto" hidden></video>
     </a>
+    <div class="promo-duo" id="promoDuo" hidden>
+      <div class="promo-duo-item">
+        <a class="promo-duo-img" href="https://www.carsandsocial.com/event-details/ignite" target="_blank" rel="noopener"><img src="assets/promo-ignite-oct22.jpg" alt="Ignite at Fuego, October Edition, with Cars &amp; Social. Thursday October 22, 6:30 to 9:30 PM at Fuego Steakhouse &amp; Bar, North Bergen, NJ."></a>
+        <a class="btn btn-gold promo-duo-btn" href="https://www.carsandsocial.com/event-details/ignite" target="_blank" rel="noopener">RSVP for Ignite</a>
+      </div>
+      <div class="promo-duo-item">
+        <a class="promo-duo-img" id="promoDuoLadiesImg" href="https://www.opentable.com/restref/client/?rid=1473520" target="_blank" rel="noopener"><img src="assets/promo-ladies-night.jpg" alt="Fuego Ladies&#8217; Night, every Thursday, 7 PM to 11 PM. Ladies receive their first cocktail complimentary. Live DJ, DJ OZ."></a>
+        <a class="btn btn-gold promo-duo-btn" id="promoDuoLadiesBtn" href="https://www.opentable.com/restref/client/?rid=1473520" target="_blank" rel="noopener">Reserve Ladies&#8217; Night</a>
+      </div>
+    </div>
   </div>
 </div>
 <style>
@@ -110,10 +120,20 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
 .promo-close:hover{ background:var(--gold); color:#1a1207; }
 .upcoming{ margin-top:38px; padding-top:34px; border-top:1px solid var(--line-soft); }
 .upcoming .eyebrow{ margin-bottom:18px; }
-.upcoming-list{ display:flex; gap:20px; flex-wrap:wrap; }
+.upcoming-list{ display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; }
 .upcoming-flyer{ display:block; max-width:220px; border:1px solid var(--line); border-radius:8px; overflow:hidden; box-shadow:0 18px 44px rgba(0,0,0,.45); transition:transform .4s var(--ease), border-color .4s var(--ease); }
 .upcoming-flyer:hover{ transform:translateY(-4px); border-color:var(--gold); }
 .upcoming-flyer img{ display:block; width:100%; height:auto; }
+.promo-box.duo{ max-width:min(900px,94vw); }
+.promo-duo{ display:grid; grid-template-columns:1fr 1fr; gap:18px; max-height:90vh; overflow-y:auto; padding:2px; }
+.promo-duo[hidden]{ display:none; }
+.promo-duo-item{ display:flex; flex-direction:column; gap:12px; }
+.promo-duo-img{ display:block; border:1px solid var(--line); border-radius:8px; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.6); }
+.promo-duo-img img{ display:block; width:100%; height:auto; max-height:72vh; object-fit:contain; background:#000; }
+.promo-duo-btn{ justify-content:center; text-align:center; width:100%; }
+.upcoming-item{ display:flex; flex-direction:column; gap:10px; max-width:220px; }
+.upcoming-item .btn{ justify-content:center; text-align:center; padding:11px 14px; font-size:12px; }
+@media (max-width:620px){ .promo-duo{ grid-template-columns:1fr; } .promo-duo-img img{ max-height:none; } }
 @media (max-width:620px){ .promo-close{ top:-14px; right:-8px; width:40px; height:40px; font-size:23px; } }
 </style>
 <script>
@@ -126,6 +146,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
   scrim.addEventListener('click',function(e){ if(e.target===scrim) hide(); });
   document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&scrim.classList.contains('show')) hide(); });
   scrim.querySelector('.promo-link').addEventListener('click',hide);
+  [].forEach.call(scrim.querySelectorAll('.promo-duo a'),function(el){ el.addEventListener('click',hide); });
   setTimeout(function(){
     /* Sequential promos (one at a time, midnight Eastern boundaries):
        Latin Vibe through Sat Aug 15 → Sexy Brunch Sun Aug 16 → Romero through Fri Aug 21,
@@ -141,6 +162,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
     var latin19Ends = Date.parse('2026-09-20T04:00:00Z');
     var tulumEnds = Date.parse('2026-10-05T04:00:00Z');
     var latinOct10Ends = Date.parse('2026-10-11T04:00:00Z');
+    var igniteEnds = Date.parse('2026-10-23T01:30:00Z'); /* Ignite at Fuego ends Thu Oct 22, 9:30 PM Eastern */
     var img = document.getElementById('promoImg');
     var link = document.getElementById('promoLink');
     if (now < latinEnds) {
@@ -204,6 +226,19 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
       img.src = 'assets/promo-latinvibe-oct10.jpg';
       img.alt = 'Latin Vibe Saturday — Saturday October 10th, music by DJ AlexPro. Music from 9 PM, free parking, no cover. 921 JFK Blvd, North Bergen, NJ. Reservations: 201-455-6055.';
       link.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=2026-10-10T21:00&partySize=2';
+      open();
+    } else if (now < igniteEnds) {
+      /* Two events: Ignite at Fuego (Thu Oct 22) next to the evergreen Ladies' Night, each with its own button. */
+      var dd = new Date();
+      if (dd.getDay() === 4 && dd.getHours() >= 23) dd.setDate(dd.getDate() + 1);
+      while (dd.getDay() !== 4) dd.setDate(dd.getDate() + 1);
+      var p2 = function (n) { return String(n).padStart(2, '0'); };
+      var ladiesUrl = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=' + dd.getFullYear() + '-' + p2(dd.getMonth() + 1) + '-' + p2(dd.getDate()) + 'T19:00&partySize=2';
+      document.getElementById('promoDuoLadiesImg').href = ladiesUrl;
+      document.getElementById('promoDuoLadiesBtn').href = ladiesUrl;
+      link.hidden = true; link.style.display = 'none';
+      document.getElementById('promoDuo').hidden = false;
+      scrim.querySelector('.promo-box').classList.add('duo');
       open();
     } else {
       /* Evergreen: Ladies' Night — every Thursday 7–11 PM. Prefills the next Thursday at 7 PM. */
@@ -397,6 +432,12 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
           <a class="upcoming-flyer" href="https://www.opentable.com/restref/client/?rid=1473520&amp;dateTime=2026-10-10T21%3A00&amp;partySize=2" target="_blank" rel="noopener" data-ends="2026-10-11T04:00:00Z">
             <img src="assets/promo-latinvibe-oct10.jpg" alt="Latin Vibe Saturday — Saturday October 10th, music by DJ AlexPro. Music from 9 PM, free parking, no cover. 921 JFK Blvd, North Bergen, NJ. Reservations: 201-455-6055." loading="lazy">
           </a>
+          <div class="upcoming-item" data-ends="2026-10-23T01:30:00Z">
+            <a class="upcoming-flyer" href="https://www.carsandsocial.com/event-details/ignite" target="_blank" rel="noopener">
+              <img src="assets/promo-ignite-oct22.jpg" alt="Ignite at Fuego, October Edition, with Cars &amp; Social. Thursday October 22, 6:30 to 9:30 PM at Fuego Steakhouse &amp; Bar, North Bergen, NJ. RSVP online." loading="lazy">
+            </a>
+            <a class="btn btn-gold" href="https://www.carsandsocial.com/event-details/ignite" target="_blank" rel="noopener">RSVP Here</a>
+          </div>
           <a class="upcoming-flyer" id="ladiesNightFlyer" href="https://www.opentable.com/restref/client/?rid=1473520" target="_blank" rel="noopener">
             <img src="assets/promo-ladies-night.jpg" alt="Fuego Ladies&#8217; Night — every Thursday, 7 PM to 11 PM. Ladies receive their first cocktail complimentary. Live DJ — DJ OZ. So grab your girls and make Thursday your night at Fuego. (201) 455-6055, 921 John F. Kennedy Blvd, North Bergen, NJ." loading="lazy">
           </a>
@@ -414,7 +455,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
         </script>
         <script>
         (function(){
-          var flyers=document.querySelectorAll('.upcoming-flyer[data-ends]');
+          var flyers=document.querySelectorAll('.upcoming-flyer[data-ends], .upcoming-item[data-ends]');
           for (var i=0;i<flyers.length;i++){
             if (Date.now() >= Date.parse(flyers[i].getAttribute('data-ends'))) flyers[i].parentNode.removeChild(flyers[i]);
           }
