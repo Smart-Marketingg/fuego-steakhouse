@@ -232,9 +232,18 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
       link.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=2026-10-24T21:00&partySize=2';
       open();
     } else if (now < halloweenEnds) {
-      img.src = 'assets/promo-halloween-oct31.png';
-      img.alt = 'Halloween Latin Saturdays — salsa, bachata, merengue, Latin house. Music by DJ AlexPro. Saturday, October 31. 921 John F. Kennedy Blvd, North Bergen, NJ 07047. Reservations: 201-455-6055.';
-      link.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=2026-10-31T21:00&partySize=2';
+      /* Two Halloween promos (Sat Oct 31): alternate per visit — After Dark, then Latin Saturdays. */
+      var hSeq = 0;
+      try { hSeq = parseInt(localStorage.getItem('fuegoHalloweenSeq') || '0', 10) || 0; localStorage.setItem('fuegoHalloweenSeq', String(hSeq + 1)); } catch (e) {}
+      if (hSeq % 2 === 0) {
+        img.src = 'assets/promo-halloween-afterdark-oct31.jpg';
+        img.alt = 'Halloween After Dark — Saturday, October 31, 10 PM to 1 AM. $75 per guest. Costume contest, DJ, photo booth, late-night bites and one welcome drink. Reserve your table.';
+        link.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=2026-10-31T22:00&partySize=2';
+      } else {
+        img.src = 'assets/promo-halloween-oct31.png';
+        img.alt = 'Halloween Latin Saturdays — salsa, bachata, merengue, Latin house. Music by DJ AlexPro. Saturday, October 31. 921 John F. Kennedy Blvd, North Bergen, NJ 07047. Reservations: 201-455-6055.';
+        link.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=2026-10-31T21:00&partySize=2';
+      }
       open();
     } else {
       /* Evergreen: Ladies' Night — every Thursday 7–11 PM. Prefills the next Thursday at 7 PM. */
@@ -442,6 +451,9 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
           </a>
           <a class="upcoming-flyer" href="https://www.opentable.com/restref/client/?rid=1473520&amp;dateTime=2026-10-31T21%3A00&amp;partySize=2" target="_blank" rel="noopener" data-ends="2026-11-01T04:00:00Z">
             <img src="assets/promo-halloween-oct31.png" alt="Halloween Latin Saturdays — salsa, bachata, merengue, Latin house. Music by DJ AlexPro. Saturday, October 31. 921 John F. Kennedy Blvd, North Bergen, NJ 07047. Reservations: 201-455-6055." loading="lazy">
+          </a>
+          <a class="upcoming-flyer" href="https://www.opentable.com/restref/client/?rid=1473520&amp;dateTime=2026-10-31T22%3A00&amp;partySize=2" target="_blank" rel="noopener" data-ends="2026-11-01T04:00:00Z">
+            <img src="assets/promo-halloween-afterdark-oct31.jpg" alt="Halloween After Dark — Saturday, October 31, 10 PM to 1 AM. $75 per guest. Costume contest, DJ, photo booth, late-night bites and one welcome drink. Reserve your table." loading="lazy">
           </a>
           <a class="upcoming-flyer" id="ladiesNightFlyer" href="https://www.opentable.com/restref/client/?rid=1473520" target="_blank" rel="noopener">
             <img src="assets/promo-ladies-night.jpg" alt="Fuego Ladies&#8217; Night — every Thursday, 7 PM to 11 PM. Ladies receive their first cocktail complimentary. Live DJ — DJ OZ. So grab your girls and make Thursday your night at Fuego. (201) 455-6055, 921 John F. Kennedy Blvd, North Bergen, NJ." loading="lazy">
