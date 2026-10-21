@@ -27,13 +27,30 @@
   .ty-page{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:150px 0 120px; position:relative; text-align:center; }
   .ty-page::before{ content:""; position:absolute; inset:0 0 auto 0; height:520px; z-index:-1;
     background:radial-gradient(60% 100% at 50% 0,rgba(239,106,28,.18),transparent 64%); }
-  .ty-inner{ max-width:640px; }
+  .ty-inner{ max-width:900px; }
+  .ty-mark-error{ border-color:var(--fire-3); background:rgba(179,34,12,.12); }
+  .ty-mark-error svg{ color:var(--fire-2); }
   .ty-mark{ width:82px; height:82px; margin:0 auto 30px; border-radius:50%; display:grid; place-items:center;
     border:1px solid var(--gold); background:rgba(200,154,82,.08); }
   .ty-mark svg{ width:38px; height:38px; color:var(--gold); }
   .ty-page h1{ font-size:clamp(42px,6vw,80px); margin:6px 0 22px; }
-  .ty-page .lead{ margin:0 auto 40px; }
+  .ty-page .lead{ margin:0 auto 48px; }
   .ty-actions{ display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+  /* "What happens next" — 3 equal columns, stacked on mobile, gold numbered markers */
+  .ty-next{ margin:0 0 44px; padding-top:40px; border-top:1px solid rgba(200,154,82,.22); }
+  .ty-next .eyebrow{ margin-bottom:30px; }
+  .ty-steps{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; text-align:left; }
+  .ty-step{ position:relative; padding:26px 22px 24px; border:1px solid rgba(200,154,82,.22); border-radius:var(--radius); background:rgba(255,255,255,.02); }
+  .ty-step .num{ display:flex; align-items:center; gap:12px; margin-bottom:16px;
+    font-family:var(--font-body); font-size:12.5px; font-weight:700; letter-spacing:.26em; color:var(--gold); }
+  .ty-step .num::after{ content:""; height:1px; flex:1; background:var(--gold); opacity:.5; }
+  .ty-step h3{ font-size:22px; margin:0 0 8px; line-height:1.15; }
+  .ty-step p{ margin:0; color:var(--text-dim); font-size:15px; line-height:1.65; }
+  @media (max-width:760px){
+    .ty-steps{ grid-template-columns:1fr; gap:14px; }
+    .ty-step{ padding:20px 18px; }
+    .ty-next{ padding-top:30px; margin-bottom:36px; }
+  }
 </style>
 <!-- Meta Pixel Code -->
 <script>
@@ -107,10 +124,18 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
   <div class="wrap">
     <div class="ty-inner" style="margin:auto">
       <div class="ty-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12.5l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <p class="eyebrow center"><span class="hair"></span><span id="tyEyebrow">Received</span><span class="hair"></span></p>
-      <h1 id="tyHeading">Thank You.</h1>
-      <p class="lead" id="tyMessage">We've received your message and our team will be in touch shortly.</p>
-      <div class="ty-actions">
+      <p class="eyebrow center"><span class="hair"></span><span id="tyEyebrow">Message Sent</span><span class="hair"></span></p>
+      <h1 id="tyHeading">Thank you.</h1>
+      <p class="lead" id="tyMessage">We've received your message and our team will get back to you shortly.</p>
+      <section class="ty-next" aria-labelledby="tyNextH">
+        <p class="eyebrow center" id="tyNextH"><span class="hair"></span>What Happens Next<span class="hair"></span></p>
+        <ol class="ty-steps" id="tySteps">
+          <li class="ty-step"><span class="num" aria-hidden="true">01</span><h3>We read it</h3><p>Your message lands with our front-of-house team.</p></li>
+          <li class="ty-step"><span class="num" aria-hidden="true">02</span><h3>The right person replies</h3><p>Within one business day, by email or phone.</p></li>
+          <li class="ty-step"><span class="num" aria-hidden="true">03</span><h3>Anything urgent?</h3><p>Call (201) 455-6055 and we'll help right away.</p></li>
+        </ol>
+      </section>
+      <div class="ty-actions" id="tyActions">
         <a class="btn btn-gold" href="index.html">Back to Home</a>
         <a class="btn btn-ghost" href="menus.html">View Menus</a>
       </div>
@@ -180,60 +205,12 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
   </div>
 </footer>
 
-<script>
-(function(){
-  var COPY = {
-    reservation: { eyebrow:'Reservation Received', heading:'Your Table Is Requested.', msg:"Thank you — we've received your reservation request and will confirm by phone or email shortly." },
-    event:       { eyebrow:'Request Received', heading:'Let\u2019s Plan Something Epic.', msg:'Thank you — our events team will reach out shortly to craft your celebration with you.' },
-    contact:     { eyebrow:'Message Sent', heading:'Thank You For Reaching Out.', msg:"We've received your message and our team will get back to you shortly." },
-    newsletter:  { eyebrow:'You\u2019re On The List', heading:'Welcome To Fuego.', msg:"You're subscribed — look out for updates on events, specials and more." }
-  };
-  var params = new URLSearchParams(location.search);
-  var t = params.get('type');
-  var c = COPY[t];
-  if (c) {
-    document.getElementById('tyEyebrow').textContent = c.eyebrow;
-    document.getElementById('tyHeading').textContent = c.heading;
-    document.getElementById('tyMessage').textContent = c.msg;
-    document.title = c.eyebrow + ' | Fuego Steakhouse & Bar';
-  }
-})();
-</script>
+<script src="thank-you.js"></script>
+<script src="lead.js"></script>
 <script src="app.js"></script>
 <script src="flames.js"></script>
 <script type="text/javascript" src="//cdn.callrail.com/companies/810798184/e72ef99bbc36bac1eca7/12/swap.js"></script>
 
-<div id="tweaks-root"></div>
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-<script type="text/babel" src="tweaks-panel.jsx"></script>
-<script type="text/babel">
-const TY_TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
-  "centerText": true
-}/*EDITMODE-END*/;
-
-function ThankYouTweaks() {
-  const [t, setTweak] = useTweaks(TY_TWEAK_DEFAULTS);
-  React.useEffect(() => {
-    const inner = document.querySelector('.ty-inner');
-    const actions = document.querySelector('.ty-actions');
-    const eyebrow = document.querySelector('.ty-page .eyebrow');
-    const align = t.centerText ? 'center' : 'left';
-    if (inner) inner.style.textAlign = align;
-    if (actions) actions.style.justifyContent = t.centerText ? 'center' : 'flex-start';
-    if (eyebrow) eyebrow.style.justifyContent = t.centerText ? 'center' : 'flex-start';
-  }, [t.centerText]);
-  return (
-    <TweaksPanel>
-      <TweakSection label="Layout" />
-      <TweakToggle label="Center text" value={t.centerText}
-        onChange={(v) => setTweak('centerText', v)} />
-    </TweaksPanel>
-  );
-}
-ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<ThankYouTweaks />);
-</script>
 <script>
 /* Fuego Steakhouse & Bar — Meta Pixel event tracking
    Dataset / Pixel ID: 603324592033992

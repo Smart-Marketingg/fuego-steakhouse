@@ -1,0 +1,39 @@
+# Files that must never be served as public URLs by the assets binding.
+# Same syntax as .gitignore. Keep this in step with README §1.
+src/
+tests/
+scripts/
+migrations/
+docs/
+node_modules/
+schema.sql
+schema.oneline.sql
+wrangler.jsonc
+wrangler.toml
+package.json
+package-lock.json
+README.md
+.git*
+.gitignore
+.DS_Store
+.dev.vars*
+.wrangler/
+
+# Non-live folders still in the repo (drafts, exports, tooling)
+export/
+site/
+screenshots/
+uploads/
+_ds/
+github.md
+SETUP-Google-Sheet.txt
+google-sheet-script.gs
+Fuego Steakhouse (Canva).html
+tweaks-app.jsx
+tweaks-panel.jsx
+*.bak
+*.orig
+
+# Claude Design prototype files (visual reference only, not live)
+*.dc.html
+support.js

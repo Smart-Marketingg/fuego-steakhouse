@@ -1,0 +1,24 @@
+{
+  "name": "fuego-steakhouse",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fuego Steakhouse & Bar website + CRM on one Cloudflare Worker (D1 + R2 + Resend).",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --persist-to ../.wrangler-state-fuego-steakhouse --test-scheduled",
+    "dev:remote": "wrangler dev --remote",
+    "deploy": "wrangler deploy",
+    "deploy:preview": "wrangler deploy --env preview",
+    "test": "node --experimental-global-webcrypto --test tests/",
+    "schema:oneline": "node scripts/flatten-schema.mjs",
+    "schema:local": "wrangler d1 execute fuego-steakhouse --local --persist-to ../.wrangler-state-fuego-steakhouse --file=schema.sql",
+    "d1:local": "wrangler d1 execute fuego-steakhouse --local --persist-to ../.wrangler-state-fuego-steakhouse --command",
+    "schema:preview": "wrangler d1 execute fuego-steakhouse-preview --remote --file=schema.sql",
+    "schema:live": "wrangler d1 execute fuego-steakhouse --remote --file=schema.sql",
+    "bootstrap": "node scripts/bootstrap-admin.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "devDependencies": {
+    "wrangler": "^3.114.0"
+  }
+}

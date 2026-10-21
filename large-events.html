@@ -123,6 +123,9 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel Code -->
 <meta name="facebook-domain-verification" content="omjopdp30jx8jbl03cjqd38315u0s4" />
+<!-- Cloudflare Turnstile: uncomment once Turnstile is enabled (README §6)
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+-->
 </head>
 <body>
 
@@ -281,6 +284,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
       <h2 id="ev-cta-h">Ready To Host Something Unforgettable?</h2>
       <p>Tell us about your celebration and our events team will reach out to craft it with you. Groups of every size welcome.</p>
       <form class="ev-form" id="eventForm" novalidate>
+        <input type="text" name="website" class="fn-hp" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;opacity:0;overflow:hidden" value="">
         <div class="field">
           <label for="evName">Full Name</label>
           <input type="text" id="evName" name="name" required autocomplete="name" placeholder="Your name">
@@ -310,6 +314,9 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
           <textarea id="evMessage" name="message" rows="3" placeholder="Occasion, vibe, any questions…"></textarea>
         </div>
         <span class="msg err" id="evMsg" role="status" aria-live="polite" style="min-height:0"></span>
+        <!-- Uncomment and set the site key once Turnstile is enabled (README §6)
+        <div class="cf-turnstile" data-sitekey="TURNSTILE_SITE_KEY"></div>
+        -->
         <button type="submit" class="btn btn-gold" id="evSubmit">Request Your Event</button>
       </form>
       <div class="ev-success" id="evSuccess" hidden>
@@ -400,6 +407,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
       <p id="modalSub">Forged by fire, set for you. Tell us when and we'll handle the rest.</p>
     </div>
     <form class="modal-body" id="reserveForm" novalidate>
+      <input type="text" name="website" class="fn-hp" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;opacity:0;overflow:hidden" value="">
       <div class="field">
         <label for="rName">Full Name</label>
         <input type="text" id="rName" name="name" required autocomplete="name" placeholder="Your name">
@@ -443,6 +451,9 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
         </div>
       </div>
       <span class="msg err" id="reserveMsg" role="status" aria-live="polite" style="min-height:0"></span>
+      <!-- Uncomment and set the site key once Turnstile is enabled (README §6)
+      <div class="cf-turnstile" data-sitekey="TURNSTILE_SITE_KEY"></div>
+      -->
       <button type="submit" class="btn btn-gold" id="reserveSubmit">Confirm Reservation</button>
     </form>
     <div class="modal-body modal-success" id="reserveSuccess" hidden>
@@ -456,31 +467,10 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
 
 
 <script src="image-slot.js"></script>
+<script src="lead.js"></script>
 <script src="app.js"></script>
 <script src="flames.js"></script>
 <script type="text/javascript" src="//cdn.callrail.com/companies/810798184/e72ef99bbc36bac1eca7/12/swap.js"></script>
-<script>
-(function(){
-  var form=document.getElementById('eventForm'); if(!form) return;
-  var msg=document.getElementById('evMsg');
-  var ENDPOINT='https://script.google.com/macros/s/AKfycbwN3E1KFTJQ4_x7bZ_ZBMgT1aQCzXAh6GQwT3Y1w7ExqrwA-uv5VOAV8FZ-RPI2NFlURA/exec';
-  form.addEventListener('submit',function(e){
-    e.preventDefault();
-    var name=document.getElementById('evName'), email=document.getElementById('evEmail'), phone=document.getElementById('evPhone');
-    var emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
-    if(!name.value.trim()){ msg.textContent='Please enter your name.'; name.focus(); return; }
-    if(!emailOk){ msg.textContent='Please enter a valid email address.'; email.focus(); return; }
-    if(!phone.value.trim()){ msg.textContent='Please enter a phone number.'; phone.focus(); return; }
-    try{ fetch(ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({
-      form:'Private Events', location:'North Bergen', formId:'fuego-web', submitted:new Date().toISOString(),
-      name:name.value.trim(), email:email.value.trim(), phone:phone.value.trim(),
-      date:document.getElementById('evDate').value, guests:document.getElementById('evGuests').value,
-      message:document.getElementById('evMessage').value.trim()
-    })}); }catch(err){}
-    window.location.href='thank-you.html?type=event';
-  });
-})();
-</script>
 <script>
 /* Fuego Steakhouse & Bar — Meta Pixel event tracking
    Dataset / Pixel ID: 603324592033992

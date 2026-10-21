@@ -1,5 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /thank-you
 Disallow: /entertainment
 
-Sitemap: https://www.chsteakhouse.com/sitemap.xml
+Sitemap: https://www.fuegosteaks.com/sitemap.xml

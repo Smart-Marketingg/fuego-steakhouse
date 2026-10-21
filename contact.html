@@ -90,6 +90,9 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel Code -->
 <meta name="facebook-domain-verification" content="omjopdp30jx8jbl03cjqd38315u0s4" />
+<!-- Cloudflare Turnstile: uncomment once Turnstile is enabled (README §6)
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+-->
 </head>
 <body>
 
@@ -180,6 +183,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
         <h3>Send Us A Message</h3>
         <p class="sub">Fill out the form and we'll be in touch shortly.</p>
         <form id="contactForm" novalidate>
+          <input type="text" name="website" class="fn-hp" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;opacity:0;overflow:hidden" value="">
           <div class="field">
             <label for="cName">Full Name</label>
             <input type="text" id="cName" name="name" required autocomplete="name" placeholder="Your name">
@@ -203,6 +207,9 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
             <textarea id="cMessage" name="message" rows="4" required placeholder="Your message…"></textarea>
           </div>
           <span class="msg err" id="ctMsg" role="status" aria-live="polite" style="min-height:0"></span>
+          <!-- Uncomment and set the site key once Turnstile is enabled (README §6)
+          <div class="cf-turnstile" data-sitekey="TURNSTILE_SITE_KEY"></div>
+          -->
           <button type="submit" class="btn btn-gold" id="ctSubmit">Send Message</button>
         </form>
         <div class="ct-success" id="ctSuccess" hidden>
@@ -276,27 +283,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
   </div>
 </footer>
 
-<script>
-(function(){
-  var form=document.getElementById('contactForm'); if(!form) return;
-  var msg=document.getElementById('ctMsg');
-  var ENDPOINT='https://script.google.com/macros/s/AKfycbwN3E1KFTJQ4_x7bZ_ZBMgT1aQCzXAh6GQwT3Y1w7ExqrwA-uv5VOAV8FZ-RPI2NFlURA/exec';
-  form.addEventListener('submit',function(e){
-    e.preventDefault();
-    var name=document.getElementById('cName'), email=document.getElementById('cEmail'), message=document.getElementById('cMessage');
-    var emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
-    if(!name.value.trim()){ msg.textContent='Please enter your name.'; name.focus(); return; }
-    if(!emailOk){ msg.textContent='Please enter a valid email address.'; email.focus(); return; }
-    if(!message.value.trim()){ msg.textContent='Please enter a message.'; message.focus(); return; }
-    try{ fetch(ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({
-      form:'Contact', location:'North Bergen', formId:'fuego-web', submitted:new Date().toISOString(),
-      name:name.value.trim(), email:email.value.trim(), phone:document.getElementById('cPhone').value.trim(),
-      subject:document.getElementById('cSubject').value.trim(), message:message.value.trim()
-    })}); }catch(err){}
-    window.location.href='/thank-you?type=contact';
-  });
-})();
-</script>
+<script src="lead.js"></script>
 <script src="app.min.js"></script>
 <script src="flames.min.js"></script>
 <script>
