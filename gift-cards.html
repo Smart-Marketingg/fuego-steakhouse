@@ -99,9 +99,8 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel Code -->
 <meta name="facebook-domain-verification" content="omjopdp30jx8jbl03cjqd38315u0s4" />
-<!-- Cloudflare Turnstile: uncomment once Turnstile is enabled (README §6)
+<!-- Cloudflare Turnstile (spam protection for the forms; site key from Cloudflare → Turnstile) -->
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
--->
 </head>
 <body>
 
@@ -339,9 +338,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
         </div>
       </div>
       <span class="msg err" id="reserveMsg" role="status" aria-live="polite" style="min-height:0"></span>
-      <!-- Uncomment and set the site key once Turnstile is enabled (README §6)
-      <div class="cf-turnstile" data-sitekey="TURNSTILE_SITE_KEY"></div>
-      -->
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAAFfm-OYEtcwxW6P4" data-theme="dark" data-size="flexible"></div>
       <button type="submit" class="btn btn-gold" id="reserveSubmit">Confirm Reservation</button>
     </form>
     <div class="modal-body modal-success" id="reserveSuccess" hidden>
