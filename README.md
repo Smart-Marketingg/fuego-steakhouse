@@ -92,7 +92,7 @@ Non-live folders still in the repo and excluded by `.assetsignore`: `export/`, `
 | `BUSINESS_ADDRESS` | Email footer. |
 | `BUSINESS_PHONE` | Email footer, `{phone_number}` placeholder in auto-replies. |
 | `WORKER_NAME` | The Worker's name (`fuego-steakhouse`). The same-origin check on `/api/lead` accepts only `SITE_URL`, the request's own host and `<WORKER_NAME>[-env].<account>.workers.dev`, so other people's workers.dev sites cannot post leads. |
-| `NOTIFY_EMAILS` | Default recipients of lead notifications (comma list). Can be overridden in the portal Settings page. |
+| `NOTIFY_EMAILS` | Default recipients of lead notifications (comma list; currently info@fuegosteaks.com and info@chdiner.com). Can be overridden in the portal Settings page. |
 | `NOTIFY_ROUTES` | JSON `{ "<form id>": "a@x.com, b@x.com" }` per-form overrides (e.g. `event` → `events@fuegosteaks.com`). Portal routes merge on top. |
 | `MAIL_FROM` | Resend sender, `Name <info@fuegosteaks.com>`. Must be on a domain verified in Resend. |
 | `MAIL_REPLY_TO` | Reply-to for auto-replies and the weekly summary (notifications reply to the guest). |
