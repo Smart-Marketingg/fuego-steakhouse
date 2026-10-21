@@ -1,7 +1,7 @@
 // GA4 Data API without an SDK: sign a service-account JWT (RS256, WebCrypto),
 // exchange it for an access token, run reports, cache 15 minutes in D1.
 import { json, b64url, parseJson } from './util.js';
-import { resolveSecret, ga4PropertyId, cacheGet, cacheSet } from './settings-crypto.js';
+import { resolveSecret, ga4PropertyId, cacheGet, cacheSet, encrypt, decrypt } from './settings-crypto.js';
 
 const SCOPE = 'https://www.googleapis.com/auth/analytics.readonly';
 const CACHE_TTL = 15 * 60;
@@ -15,8 +15,11 @@ function pemToDer(pem) {
 }
 
 async function accessToken(env, sa) {
+  // The bearer token is a credential: it is stored encrypted like every other key.
   const cached = await cacheGet(env, 'ga4_token');
-  if (cached && cached.exp > Date.now() / 1000 + 60) return cached.token;
+  if (cached && cached.exp > Date.now() / 1000 + 60) {
+    try { return await decrypt(env, cached.token); } catch { /* re-mint below */ }
+  }
   const now = Math.floor(Date.now() / 1000);
   const header = b64url(new TextEncoder().encode(JSON.stringify({ alg: 'RS256', typ: 'JWT' })));
   const claims = b64url(new TextEncoder().encode(JSON.stringify({ iss: sa.client_email, scope: SCOPE, aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600 })));
@@ -29,7 +32,7 @@ async function accessToken(env, sa) {
   });
   if (!res.ok) throw new Error(`Google token exchange failed (HTTP ${res.status})`);
   const j = await res.json();
-  await cacheSet(env, 'ga4_token', { token: j.access_token, exp: now + (j.expires_in || 3600) }, j.expires_in || 3600);
+  await cacheSet(env, 'ga4_token', { token: await encrypt(env, j.access_token), exp: now + (j.expires_in || 3600) }, j.expires_in || 3600);
   return j.access_token;
 }
 

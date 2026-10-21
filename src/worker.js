@@ -35,7 +35,7 @@ api.post('/api/auth/logout', auth.logout);
 api.post('/api/auth/logout-all', auth.requireAuth(), auth.logoutAll);
 api.get('/api/auth/me', auth.requireAuth(), auth.me);
 api.post('/api/auth/ping', auth.requireAuth(), auth.ping);
-api.get('/api/auth/set/:token', auth.checkSetToken);
+api.post('/api/auth/set/check', auth.checkSetToken);
 api.post('/api/auth/set', auth.setPassword);
 api.post('/api/auth/forgot', auth.forgot);
 api.get('/api/auth/google', auth.googleStart);
@@ -75,8 +75,9 @@ api.post('/api/settings/test/:integration', P('settings.manage'), settings.testI
 api.get('/api/audit', P('audit.view'), audit.listAudit);
 api.get('/api/audit/export.csv', P('audit.view'), audit.exportAudit);
 
-// Old hash-style paths that may still be bookmarked (#/ is handled client-side; these are the no-hash leftovers).
-const LEGACY = { '/index.html': '/', '/private-events': '/large-events', '/events': '/entertainment', '/reviews-gallery': '/gallery', '/gift-cards-rewards': '/gift-cards' };
+// Only the root alias lives here; every legacy slug redirect is declared once in `_redirects`,
+// which the assets binding applies. (#/ links are handled client-side in lead.js.)
+const LEGACY = { '/index.html': '/' };
 
 async function handleApi(request, env, ctx, url) {
   const c = { request, env, url, waitUntil: (p) => ctx.waitUntil(p.catch ? p.catch((e) => console.error('background task failed', e)) : p), params: {}, user: null, session: null };

@@ -135,8 +135,9 @@ export async function runWeeklySummary(env, { force = false } = {}) {
 
   const since = new Date(Date.now() - 7 * 86400000).toISOString();
   const rows = (await env.DB.prepare('SELECT * FROM leads WHERE created_at>=? ORDER BY created_at DESC').bind(since).all()).results;
+  // New leads per form this week; "won" is counted separately by when the stage changed (updated_at).
   const byForm = {};
-  for (const r of rows) { byForm[r.form] = byForm[r.form] || { total: 0, won: 0 }; byForm[r.form].total++; if (r.stage === 'won') byForm[r.form].won++; }
+  for (const r of rows) { byForm[r.form] = byForm[r.form] || { total: 0 }; byForm[r.form].total++; }
   const won = (await env.DB.prepare("SELECT form, COUNT(*) AS n FROM leads WHERE stage='won' AND updated_at>=? GROUP BY form").bind(since).all()).results;
   const open = (await env.DB.prepare("SELECT COUNT(*) AS n FROM leads WHERE stage='new'").first()).n;
   const emailAgg = await env.DB.prepare('SELECT SUM(ok) AS sent, SUM(CASE WHEN ok=0 THEN 1 ELSE 0 END) AS failed FROM email_log WHERE at>=?').bind(since).first();

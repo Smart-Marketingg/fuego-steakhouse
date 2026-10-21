@@ -9,10 +9,13 @@ export function b64url(bytes) {
   for (const b of new Uint8Array(bytes)) s += String.fromCharCode(b);
   return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
+/** Base64 for binary data. Converts in 32 KB chunks so a 10 MB attachment stays cheap on CPU. */
 export function b64(bytes) {
-  let s = '';
-  for (const b of new Uint8Array(bytes)) s += String.fromCharCode(b);
-  return btoa(s);
+  const u8 = new Uint8Array(bytes);
+  const CHUNK = 0x8000;
+  const parts = [];
+  for (let i = 0; i < u8.length; i += CHUNK) parts.push(String.fromCharCode.apply(null, u8.subarray(i, i + CHUNK)));
+  return btoa(parts.join(''));
 }
 export function fromB64(str) {
   const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/'));

@@ -57,7 +57,7 @@ Responses:
 | `POST /api/auth/logout-all` | → `{ok:true}` deletes every session of the user |
 | `GET /api/auth/me` | → `{user:{id,email,name,role,perms,off}, permissions:[…], sections:[…], integrations:{…}, business:{name,site_url,timezone,phone,address}}` |
 | `POST /api/auth/ping` | touches `sessions.last_seen` → `{ok:true}`; `401` when idle-expired |
-| `GET /api/auth/set/:token` | validate a setup/invite/reset token → `{ok:true,email,kind}` or `410 {"error":"expired"}` |
+| `POST /api/auth/set/check` | `{token}` → validate a setup/invite/reset token without consuming it → `{ok:true,email,kind}` or `410 {"error":"expired"}` (POST so the token never sits in a URL or request log) |
 | `POST /api/auth/set` | `{token,password}` → sets password, consumes token, signs in → `{ok:true}` |
 | `POST /api/auth/forgot` | `{email}` → always `{ok:true}`; emails a 15-minute reset link if the user exists |
 | `GET /api/auth/google` | 302 to Google (only when configured; else `404`) |

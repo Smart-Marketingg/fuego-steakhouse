@@ -41,12 +41,17 @@ test('passwords: PBKDF2 round trip, per-user salt, constant-time verify', async 
   assert.ok(!passwordOk('short'));
 });
 
-test('originAllowed accepts the site, previews and localhost only', () => {
-  const env = { SITE_URL: 'https://www.fuegosteaks.com' };
+test('originAllowed accepts the site, the request host and only this Worker\'s workers.dev hosts', () => {
+  const env = { SITE_URL: 'https://www.fuegosteaks.com', WORKER_NAME: 'fuego-steakhouse' };
   const url = new URL('https://www.fuegosteaks.com/api/lead');
   assert.ok(originAllowed('https://www.fuegosteaks.com', url, env));
   assert.ok(originAllowed('https://fuego-steakhouse-preview.acct.workers.dev', url, env));
-  assert.ok(originAllowed('http://localhost:8788', url, env));
+  assert.ok(originAllowed('https://fuego-steakhouse.acct.workers.dev', url, env));
+  assert.ok(originAllowed('http://127.0.0.1:8788', new URL('http://127.0.0.1:8788/api/lead'), env), 'local dev: origin equals request host');
+  assert.ok(!originAllowed('http://localhost:8788', url, env), 'localhost is not special in production');
+  assert.ok(!originAllowed('https://evil.workers.dev', url, env));
+  assert.ok(!originAllowed('https://notfuego-steakhouse.acct.workers.dev', url, env));
+  assert.ok(!originAllowed('https://fuego-steakhouse.acct.workers.dev', url, { SITE_URL: env.SITE_URL }), 'no WORKER_NAME, no workers.dev');
   assert.ok(!originAllowed('https://evil.example', url, env));
   assert.ok(!originAllowed('', url, env));
   assert.ok(!originAllowed('garbage', url, env));

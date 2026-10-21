@@ -91,6 +91,7 @@ Non-live folders still in the repo and excluded by `.assetsignore`: `export/`, `
 | `BUSINESS_NAME` | Shown in emails, the portal header and the weekly summary. |
 | `BUSINESS_ADDRESS` | Email footer. |
 | `BUSINESS_PHONE` | Email footer, `{phone_number}` placeholder in auto-replies. |
+| `WORKER_NAME` | The Worker's name (`fuego-steakhouse`). The same-origin check on `/api/lead` accepts only `SITE_URL`, the request's own host and `<WORKER_NAME>[-env].<account>.workers.dev`, so other people's workers.dev sites cannot post leads. |
 | `NOTIFY_EMAILS` | Default recipients of lead notifications (comma list). Can be overridden in the portal Settings page. |
 | `NOTIFY_ROUTES` | JSON `{ "<form id>": "a@x.com, b@x.com" }` per-form overrides (e.g. `event` → `events@fuegosteaks.com`). Portal routes merge on top. |
 | `MAIL_FROM` | Resend sender, `Name <info@fuegosteaks.com>`. Must be on a domain verified in Resend. |
@@ -184,7 +185,7 @@ Prerequisites: Node 20 or newer (`package.json` has `"engines": { "node": ">=20"
    - Deploy command: `npx wrangler deploy`
    - Non-production branch deploy command: `npx wrangler deploy --env preview`
    Every push to `main` deploys production; `dev` and PR branches deploy `fuego-steakhouse-preview` and the preview URL is posted on the PR.
-9. Custom domains. The `routes` in `wrangler.jsonc` (`www.fuegosteaks.com` and `fuegosteaks.com`, both `custom_domain: true`) are created on deploy. Confirm under Worker → Settings → Domains & Routes; the zone must be on this account. Cutting over from the old Cloudflare Pages project: remove the Pages custom domain first, then deploy.
+9. Custom domains. The `routes` in `wrangler.jsonc` (`www.fuegosteaks.com` and `fuegosteaks.com`, both `custom_domain: true`) are created on deploy. Confirm under Worker → Settings → Domains & Routes; the zone must be on this account. **Cut-over from the old Cloudflare Pages project (do this before the first production deploy):** the zone currently has two CNAME records, `fuegosteaks.com` and `www.fuegosteaks.com`, pointing at `fuego-steakhouse.pages.dev`. While they exist, `wrangler deploy` cannot attach the custom domains and fails with a "hostname already in use" error. In **Workers & Pages → fuego-steakhouse (Pages) → Custom domains**, remove both domains (Cloudflare deletes the CNAMEs with them), confirm under DNS → Records that they are gone, then deploy. Expect a few minutes of downtime between removing the Pages domains and the Worker deploy finishing; do it off-hours and have the deploy ready to run.
 10. Media domain: step 3 above (`media.fuegosteaks.com` on `fuego-media`). `MEDIA_URL` already points at it.
 11. Smoke test: `curl -s https://www.fuegosteaks.com/api/health` → `{"ok":true,"db":true,"settings_key":true,...}`; submit each form; open `/admin/`.
 

@@ -468,7 +468,8 @@
     </div></div>`;
     const body = $('#setBody');
     const clearToken = () => history.replaceState(null, '', location.pathname);
-    api('/api/auth/set/' + encodeURIComponent(token), { silent401: true }).then((r) => {
+    // POST so the one-time token never appears in a URL (request logs, proxies).
+    api('/api/auth/set/check', { method: 'POST', body: { token }, silent401: true }).then((r) => {
       const kind = r.kind === 'reset' ? 'Reset the password for' : 'Create a password for';
       body.innerHTML = `<p class="sub">${esc(kind)} <strong>${esc(r.email)}</strong>.</p>
         <div id="setAlert" role="alert"></div>
@@ -567,12 +568,24 @@
     renderSignIn({ notice: 'Locked. Sign in to continue.', noticeType: 'ok' });
   };
 
-  // ---- idle keep-alive: ping every 5 min; a 401 drops us to sign-in via api()
+  // ---- idle handling: the server signs a non-remembered session out after 30 min
+  // without requests. We only keep it alive while the person is actually using the
+  // page: every 5 min, ping if there was input since the last ping. An idle tab
+  // therefore times out as the spec requires; a 401 drops us to sign-in via api().
+  let lastActivity = Date.now(), lastPing = Date.now();
+  const ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+  function noteActivity() { lastActivity = Date.now(); }
   function startIdle() {
     stopIdle();
-    S.idleTimer = setInterval(() => { api('/api/auth/ping', { method: 'POST' }).catch(() => { /* handled */ }); }, 5 * 60 * 1000);
+    ACTIVITY_EVENTS.forEach((ev) => document.addEventListener(ev, noteActivity, { passive: true }));
+    S.idleTimer = setInterval(() => {
+      if (lastActivity > lastPing) { lastPing = Date.now(); api('/api/auth/ping', { method: 'POST' }).catch(() => { /* handled */ }); }
+    }, 5 * 60 * 1000);
   }
-  function stopIdle() { clearInterval(S.idleTimer); S.idleTimer = null; }
+  function stopIdle() {
+    clearInterval(S.idleTimer); S.idleTimer = null;
+    ACTIVITY_EVENTS.forEach((ev) => document.removeEventListener(ev, noteActivity));
+  }
 
   /* ============================================================
      VIEW: DASHBOARD
@@ -1466,7 +1479,8 @@
   });
   window.addEventListener('online', () => { setSync('ok'); updateSyncText(); });
   window.addEventListener('offline', () => { setSync('off'); updateSyncText(); });
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && S.me) api('/api/auth/ping', { method: 'POST' }).catch(() => { /* handled */ }); });
+  // Coming back to the tab is user activity: check the session is still alive (a 401 shows sign-in).
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && S.me) { noteActivity(); api('/api/auth/ping', { method: 'POST' }).catch(() => { /* handled */ }); } });
 
   boot();
 })();

@@ -143,13 +143,21 @@ export function csrfCheck(ctx) {
   if (hdr !== 'crm' || !originAllowed(origin, url, env)) return error(403, 'csrf', 'Request blocked.');
   return null;
 }
+/**
+ * Same-origin check. Allowed: the request's own host, SITE_URL, and this
+ * Worker's own workers.dev hosts (`<WORKER_NAME>[-suffix].<account>.workers.dev`,
+ * which covers the preview environment). Other workers.dev sites are rejected.
+ */
 export function originAllowed(origin, url, env) {
   if (!origin) return false;
   let o;
   try { o = new URL(origin); } catch { return false; }
   if (o.host === url.host) return true;
   try { if (o.host === new URL(env.SITE_URL).host) return true; } catch { /* ignore */ }
-  return /\.workers\.dev$/.test(o.host) || o.hostname === 'localhost' || o.hostname === '127.0.0.1';
+  const name = String(env.WORKER_NAME || '').toLowerCase();
+  if (!name) return false;
+  const esc = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^${esc}(-[a-z0-9-]+)?\\.[a-z0-9-]+\\.workers\\.dev$`).test(o.hostname);
 }
 
 // ---------- login rate limit ----------
@@ -248,8 +256,10 @@ async function findSetToken(env, token) {
   if (!row || row.used_at || row.expires_at < nowIso()) return null;
   return row;
 }
+/** POST /api/auth/set/check {token}: validates without consuming. POST keeps the token out of URLs and logs. */
 export async function checkSetToken(ctx) {
-  const row = await findSetToken(ctx.env, ctx.params.token);
+  const body = await readBody(ctx.request);
+  const row = await findSetToken(ctx.env, clean(body.token, 200));
   if (!row) return error(410, 'expired', 'This link has expired or was already used.');
   return json({ ok: true, email: row.email, kind: row.kind });
 }

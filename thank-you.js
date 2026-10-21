@@ -63,6 +63,32 @@
   if (!COPY[type]) type = queryType();
   var c = COPY[type] || COPY.contact;
 
+  /* The API sends non-JavaScript form posts here with ?error=<code> when a submission
+     was NOT accepted. Never show success copy in that case. */
+  var errMatch = /[?&]error=([^&#]*)/.exec(w.location.search || '');
+  if (errMatch) {
+    var code = decodeURIComponent(errMatch[1] || '');
+    var reasons = {
+      invalid: 'Some of the details were missing or invalid, so we could not send your request.',
+      turnstile: 'The spam check did not complete, so we could not send your request.',
+      rate_limited: 'Too many submissions came from your connection in a short time.',
+      origin: 'The request did not come from our website, so it was not accepted.'
+    };
+    c = {
+      eyebrow: 'Not Sent',
+      lead: (reasons[code] || 'Something went wrong and your request was not sent.') + ' Please go back and try again, or call (201) 455-6055 and we will take care of it.',
+      steps: [
+        ['Go back and retry', 'Use your browser’s back button; your details are usually still filled in.'],
+        ['Check the required fields', 'Name, a valid email address and a phone number where we can reach you.'],
+        ['Or just call us', '(201) 455-6055 — we are happy to take your request by phone.']
+      ],
+      ctas: [['Back to Home', 'index.html'], ['Call Us', 'tel:+12014556055']]
+    };
+    var h1 = d.getElementById('tyHeading'); if (h1) h1.textContent = 'Sorry, that didn’t go through.';
+    var mark = d.querySelector('.ty-mark'); if (mark) mark.classList.add('ty-mark-error');
+    type = 'error';
+  }
+
   function text(id, v) { var el = d.getElementById(id); if (el) el.textContent = v; }
   text('tyEyebrow', c.eyebrow);
   text('tyMessage', c.lead);

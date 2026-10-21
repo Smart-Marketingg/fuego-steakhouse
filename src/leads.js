@@ -57,9 +57,12 @@ function wantsJson(request) {
 export async function captureLead(ctx) {
   const { request, env, url } = ctx;
   const asJson = wantsJson(request);
+  // Non-JS browser posts: send the visitor to the thank-you page's error state
+  // (thank-you.js renders the failure copy when `error` is present), never to success copy.
+  let formHint = ''; // set once the body is parsed, so the error page can name the form
   const fail = (status, code, message, extra) => asJson
     ? error(status, code, message, extra)
-    : redirect(`/thank-you?error=${encodeURIComponent(code)}`, 303);
+    : redirect(`/thank-you?error=${encodeURIComponent(code)}${formHint ? `&form=${encodeURIComponent(formHint)}` : ''}`, 303);
 
   // Same-origin only.
   const origin = request.headers.get('Origin') || (request.headers.get('Referer') ? new URL(request.headers.get('Referer')).origin : '');
@@ -68,6 +71,7 @@ export async function captureLead(ctx) {
   const body = await readBody(request);
   const { forms } = getConfig(env);
   const formId = clean(body.form, 40);
+  formHint = formId;
   const def = forms[formId];
   if (!def) return fail(400, 'invalid', 'Unknown form.', { fields: { form: 'Unknown form' } });
 

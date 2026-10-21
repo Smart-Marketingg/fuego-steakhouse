@@ -2,3 +2,8 @@
 .dev.vars*
 .wrangler/
 node_modules/
+
+# Design-tool artifacts and inbox files: visual reference only, never live
+uploads/
+*.dc.html
+support.js

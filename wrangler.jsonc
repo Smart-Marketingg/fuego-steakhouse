@@ -35,6 +35,8 @@
 
   "vars": {
     "SITE_URL": "https://www.fuegosteaks.com",
+    // Used by the same-origin check to recognise this Worker's own *.workers.dev hosts.
+    "WORKER_NAME": "fuego-steakhouse",
     "BUSINESS_NAME": "Fuego Steakhouse & Bar",
     "BUSINESS_ADDRESS": "921 John F. Kennedy Blvd, North Bergen, NJ 07047 · (201) 455-6055",
     "BUSINESS_PHONE": "(201) 455-6055",
@@ -80,6 +82,7 @@
       "workers_dev": true,
       "vars": {
         "SITE_URL": "https://fuego-steakhouse-preview.smart-marketing.workers.dev",
+        "WORKER_NAME": "fuego-steakhouse",
         "BUSINESS_NAME": "Fuego Steakhouse & Bar (preview)",
         "BUSINESS_ADDRESS": "921 John F. Kennedy Blvd, North Bergen, NJ 07047 · (201) 455-6055",
         "BUSINESS_PHONE": "(201) 455-6055",
