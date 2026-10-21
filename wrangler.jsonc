@@ -80,8 +80,10 @@
     "preview": {
       "name": "fuego-steakhouse-preview",
       "workers_dev": true,
+      // Environments inherit top-level `routes`; preview must never claim the production domains.
+      "routes": [],
       "vars": {
-        "SITE_URL": "https://fuego-steakhouse-preview.smart-marketing.workers.dev",
+        "SITE_URL": "https://fuego-steakhouse-preview.smart-marketing732.workers.dev",
         "WORKER_NAME": "fuego-steakhouse",
         "BUSINESS_NAME": "Fuego Steakhouse & Bar (preview)",
         "BUSINESS_ADDRESS": "921 John F. Kennedy Blvd, North Bergen, NJ 07047 · (201) 455-6055",
