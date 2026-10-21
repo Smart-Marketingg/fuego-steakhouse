@@ -131,6 +131,9 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel Code -->
 <meta name="facebook-domain-verification" content="omjopdp30jx8jbl03cjqd38315u0s4" />
+<!-- Cloudflare Turnstile: uncomment once Turnstile is enabled (README §6)
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+-->
 </head>
 <body>
 
@@ -394,6 +397,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
       <p id="modalSub">Forged by fire, set for you. Tell us when and we'll handle the rest.</p>
     </div>
     <form class="modal-body" id="reserveForm" novalidate>
+      <input type="text" name="website" class="fn-hp" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;opacity:0;overflow:hidden" value="">
       <div class="field">
         <label for="rName">Full Name</label>
         <input type="text" id="rName" name="name" required autocomplete="name" placeholder="Your name">
@@ -437,6 +441,9 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
         </div>
       </div>
       <span class="msg err" id="reserveMsg" role="status" aria-live="polite" style="min-height:0"></span>
+      <!-- Uncomment and set the site key once Turnstile is enabled (README §6)
+      <div class="cf-turnstile" data-sitekey="TURNSTILE_SITE_KEY"></div>
+      -->
       <button type="submit" class="btn btn-gold" id="reserveSubmit">Confirm Reservation</button>
     </form>
     <div class="modal-body modal-success" id="reserveSuccess" hidden>
@@ -469,6 +476,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
   rewrite();
 })();
 </script>
+<script src="lead.js"></script>
 <script src="app.js"></script>
 <script src="flames.js"></script>
 <script type="text/javascript" src="//cdn.callrail.com/companies/810798184/e72ef99bbc36bac1eca7/12/swap.js"></script>

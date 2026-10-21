@@ -1,4 +1,7 @@
 # Cloudflare Pages redirects — old CH Steakhouse (Wix) URLs -> new site
+# Honored by Cloudflare Workers static assets too. The Worker itself also
+# redirects the apex (fuegosteaks.com -> www) and old hash links (/#/menus -> /menus);
+# the hash part is client-side, so lead.js handles it as well.
 # Place this file at the build output root as "_redirects".
 # Cloudflare Pages serves extensionless URLs (e.g. /menus for menus.html) and
 # 308-redirects /menus.html -> /menus automatically, so pages that kept their

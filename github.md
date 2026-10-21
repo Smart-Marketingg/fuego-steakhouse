@@ -1,20 +1,23 @@
-repo: jullien-wq/fuego-steakhouse
+repo: Smart-Marketingg/fuego-steakhouse
 branch: main
 
 ## Last sync
-date: 2026-10-06T13:10:24Z
+date: 2026-10-20T13:45:28Z
 ### Updated in this project
-- Imported the deployable site (export/) to project root, unchanged
-- Added root extras: image-slot, tweaks panel, Canva page, minified JS
+- Refreshed all top-level pages, scripts, styles and text files from the repo
+- Pulled repo copies of the Ignite (.jpg) and Halloween After Dark (.jpg) flyers
+
+## Sync history
+- 2026-10-06T13:10:24Z — initial import of export/ from jullien-wq/fuego-steakhouse
 
 ## Screen map
 | Screen | Repo files |
 | --- | --- |
-| Home | export/index.html |
-| Menus | export/menus.html |
-| Private Events | export/large-events.html |
-| Entertainment | export/entertainment.html |
-| Gallery | export/gallery.html |
-| Gift Cards | export/gift-cards.html |
-| Contact | export/contact.html |
-| Thank you / 404 | export/thank-you.html, export/404.html |
+| Home | index.html, app.js, flames.js, styles.css |
+| Menus | menus.html |
+| Private Events | large-events.html |
+| Entertainment | entertainment.html, calendar.js |
+| Gallery | gallery.html |
+| Gift Cards | gift-cards.html |
+| Contact | contact.html |
+| Thank you / 404 | thank-you.html, 404.html |

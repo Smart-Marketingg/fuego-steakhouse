@@ -1,0 +1,108 @@
+// Fuego Steakhouse & Bar — website + CRM on one Cloudflare Worker.
+// Static site served from the repo root through the assets binding, API in src/.
+// Secrets (SETTINGS_KEY, RESEND_API_KEY, TURNSTILE_SECRET, GA_SERVICE_ACCOUNT,
+// ANTHROPIC_API_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET) are NEVER in this file:
+// set them in the Cloudflare dashboard or with `wrangler secret put`.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "fuego-steakhouse",
+  "main": "src/worker.js",
+  "compatibility_date": "2025-09-01",
+  "workers_dev": true,
+  "observability": { "enabled": true },
+
+  // The whole repo root is the site. Everything in .assetsignore is excluded from upload.
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    // Every request enters the Worker first so security headers, /admin CSP and
+    // the old #/ redirects apply to static files too.
+    "run_worker_first": true
+  },
+
+  // Production domain. The apex is also attached so the Worker can 301 it to www.
+  "routes": [
+    { "pattern": "www.fuegosteaks.com", "custom_domain": true },
+    { "pattern": "fuegosteaks.com", "custom_domain": true }
+  ],
+
+  // Every 15 minutes: retries lead notifications that never sent, prunes expired
+  // sessions/attempts, and on Mondays at WEEKLY_SUMMARY_HOUR in TIMEZONE sends the
+  // weekly AI summary (once per week).
+  "triggers": { "crons": ["*/15 * * * *"] },
+
+  "vars": {
+    "SITE_URL": "https://www.fuegosteaks.com",
+    "BUSINESS_NAME": "Fuego Steakhouse & Bar",
+    "BUSINESS_ADDRESS": "921 John F. Kennedy Blvd, North Bergen, NJ 07047 · (201) 455-6055",
+    "BUSINESS_PHONE": "(201) 455-6055",
+    // General, reservation, contact and newsletter leads. Owner also wants info@chdiner… here —
+    // add it once the full address is confirmed (invalid addresses are silently dropped).
+    "NOTIFY_EMAILS": "info@fuegosteaks.com",
+    // Per-form overrides (form id -> comma list). Private-event leads go to the events inbox.
+    "NOTIFY_ROUTES": "{\"event\":\"events@fuegosteaks.com\"}",
+    "MAIL_FROM": "Fuego Steakhouse & Bar <info@fuegosteaks.com>",
+    "MAIL_REPLY_TO": "info@fuegosteaks.com",
+    "TIMEZONE": "America/New_York",
+    // Numeric GA4 property id (GA Admin -> Property settings). NOT the G-9W4G1DC2TT measurement id.
+    "GA4_PROPERTY_ID": "none",
+    "MEDIA_URL": "https://media.fuegosteaks.com",
+    "BRAND_COLOR": "#c89a52",
+    "BRAND_BG": "#100c0a",
+    "BRAND_INK": "#f3ece1",
+    "LOGO_URL": "https://www.fuegosteaks.com/assets/fuego-logo.png",
+    "WEEKLY_SUMMARY_HOUR": "8"
+  },
+
+  // LIVE bindings. Replace the ids after creating the resources (see README §2).
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "fuego-steakhouse",
+      "database_id": "REPLACE_WITH_LIVE_D1_ID",
+      // `wrangler dev --remote` and local dev use the preview copy, never live data.
+      "preview_database_id": "REPLACE_WITH_PREVIEW_D1_ID"
+    }
+  ],
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "fuego-media", "preview_bucket_name": "fuego-media-preview" },
+    { "binding": "PRIVATE", "bucket_name": "fuego-private", "preview_bucket_name": "fuego-private-preview" }
+  ],
+
+  // PREVIEW environment: deployed by Workers Builds for every non-main branch
+  // (build command `npx wrangler deploy --env preview`). Separate Worker name,
+  // separate D1 and R2, workers.dev URL only, so previews never touch live data.
+  "env": {
+    "preview": {
+      "name": "fuego-steakhouse-preview",
+      "workers_dev": true,
+      "vars": {
+        "SITE_URL": "https://fuego-steakhouse-preview.smart-marketing.workers.dev",
+        "BUSINESS_NAME": "Fuego Steakhouse & Bar (preview)",
+        "BUSINESS_ADDRESS": "921 John F. Kennedy Blvd, North Bergen, NJ 07047 · (201) 455-6055",
+        "BUSINESS_PHONE": "(201) 455-6055",
+        "NOTIFY_EMAILS": "jullien@smartmarketingg.com",
+        "NOTIFY_ROUTES": "{}",
+        "MAIL_FROM": "Fuego Steakhouse & Bar <info@fuegosteaks.com>",
+        "MAIL_REPLY_TO": "info@fuegosteaks.com",
+        "TIMEZONE": "America/New_York",
+        "GA4_PROPERTY_ID": "none",
+        "MEDIA_URL": "https://media.fuegosteaks.com",
+        "BRAND_COLOR": "#c89a52",
+        "BRAND_BG": "#100c0a",
+        "BRAND_INK": "#f3ece1",
+        "LOGO_URL": "https://www.fuegosteaks.com/assets/fuego-logo.png",
+        "WEEKLY_SUMMARY_HOUR": "8"
+      },
+      "d1_databases": [
+        { "binding": "DB", "database_name": "fuego-steakhouse-preview", "database_id": "REPLACE_WITH_PREVIEW_D1_ID" }
+      ],
+      "r2_buckets": [
+        { "binding": "MEDIA", "bucket_name": "fuego-media-preview" },
+        { "binding": "PRIVATE", "bucket_name": "fuego-private-preview" }
+      ]
+    }
+  }
+}

@@ -4,29 +4,19 @@
 (function () {
   'use strict';
 
-  /* ---------- form output: Google Sheet endpoint ----------
-     Paste your Apps Script Web App /exec URL between the quotes.
-     Leave empty to disable sending (forms still work locally). */
-  function SHEET_ENDPOINT() { return 'https://script.google.com/macros/s/AKfycbwN3E1KFTJQ4_x7bZ_ZBMgT1aQCzXAh6GQwT3Y1w7ExqrwA-uv5VOAV8FZ-RPI2NFlURA/exec'; }
-
-  function sendToSheet(formType, fields) {
-    var url = SHEET_ENDPOINT();
-    if (!url) return;
-    var payload = {
-      form: formType,
-      location: 'North Bergen',
-      formId: 'fuego-web',
-      submitted: new Date().toISOString()
-    };
-    Object.keys(fields).forEach(function (k) { payload[k] = fields[k]; });
-    try {
-      fetch(url, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
-      });
-    } catch (e) {}
+  /* ---------- form output: first-party API ----------
+     Forms post to /api/lead (Cloudflare Worker + D1) through lead.js,
+     which must be loaded before this file. On success lead.js navigates
+     to /thank-you; on a validation error it resolves with `message`. */
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function sendLead(formEl, type, extra, msgEl) {
+    if (!window.FuegoLead) {
+      if (msgEl) msgEl.textContent = "We couldn't send that just now. Please call (201) 455-6055 or try again in a minute.";
+      return;
+    }
+    window.FuegoLead.submit(formEl, type, extra).then(function (r) {
+      if (r && !r.ok && r.message && msgEl) msgEl.textContent = r.message;
+    });
   }
 
   /* ---------- hero video: start + loop from 4s ---------- */
@@ -266,23 +256,17 @@
     var phone = document.getElementById('rPhone');
     var date = document.getElementById('rDate');
     var time = document.getElementById('rTime');
-    var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+    var emailOk = EMAIL_RE.test(email.value.trim());
     if (!name.value.trim()) { msg.textContent = 'Please enter your name.'; name.focus(); return; }
     if (!emailOk) { msg.textContent = 'Please enter a valid email address.'; email.focus(); return; }
     if (!phone.value.trim()) { msg.textContent = 'Please enter a phone number.'; phone.focus(); return; }
     if (!date.value) { msg.textContent = 'Please choose a date.'; date.focus(); return; }
     if (!time.value) { msg.textContent = 'Please choose a time.'; time.focus(); return; }
 
-    sendToSheet(currentMode === 'event' ? 'Private Events' : 'Reservations', {
-      name: name.value.trim(),
-      email: email.value.trim(),
-      phone: phone.value.trim(),
-      date: date.value,
-      time: time.value,
-      party: partySize
-    });
-
-    window.location.href = 'thank-you.html?type=' + (currentMode === 'event' ? 'event' : 'reservation');
+    /* Book Your Event (modal) -> `event` pipeline; Reserve a Table -> `reservation`.
+       The modal has no guests field, so the party pill is sent as `guests` for events. */
+    if (currentMode === 'event') sendLead(form, 'event', { guests: partySize }, msg);
+    else sendLead(form, 'reservation', { party: partySize }, msg);
   });
 
   } /* end reserve modal (only when #modalScrim present) */
@@ -293,11 +277,44 @@
   if (news) news.addEventListener('submit', function (e) {
     e.preventDefault();
     var v = document.getElementById('newsEmail').value.trim();
-    var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-    if (!ok) { newsMsg.textContent = 'Enter a valid email address.'; newsMsg.className = 'msg err'; return; }
-    sendToSheet('Newsletter', { email: v });
-    window.location.href = 'thank-you.html?type=newsletter';
+    if (!EMAIL_RE.test(v)) { newsMsg.textContent = 'Enter a valid email address.'; newsMsg.className = 'msg err'; return; }
+    newsMsg.textContent = '';
+    sendLead(news, 'newsletter', null, newsMsg);
   });
+
+  /* ---------- private event inquiry (large-events.html #eventForm) ---------- */
+  var evForm = document.getElementById('eventForm');
+  if (evForm) {
+    var evMsg = document.getElementById('evMsg');
+    evForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!evMsg) { evMsg = evForm.querySelector('.msg'); }
+      if (!evMsg) { evMsg = document.createElement('span'); evMsg.className = 'msg err'; evMsg.setAttribute('role', 'status'); evForm.insertBefore(evMsg, evForm.querySelector('button[type="submit"]')); }
+      evMsg.textContent = '';
+      var name = document.getElementById('evName'), email = document.getElementById('evEmail'), phone = document.getElementById('evPhone');
+      if (!name.value.trim()) { evMsg.textContent = 'Please enter your name.'; name.focus(); return; }
+      if (!EMAIL_RE.test(email.value.trim())) { evMsg.textContent = 'Please enter a valid email address.'; email.focus(); return; }
+      if (!phone.value.trim()) { evMsg.textContent = 'Please enter a phone number.'; phone.focus(); return; }
+      sendLead(evForm, 'event', null, evMsg);
+    });
+  }
+
+  /* ---------- contact form (contact.html #contactForm) ---------- */
+  var ctForm = document.getElementById('contactForm');
+  if (ctForm) {
+    var ctMsg = document.getElementById('ctMsg');
+    ctForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!ctMsg) { ctMsg = ctForm.querySelector('.msg'); }
+      if (!ctMsg) { ctMsg = document.createElement('span'); ctMsg.className = 'msg err'; ctMsg.setAttribute('role', 'status'); ctForm.insertBefore(ctMsg, ctForm.querySelector('button[type="submit"]')); }
+      ctMsg.textContent = '';
+      var name = document.getElementById('cName'), email = document.getElementById('cEmail'), message = document.getElementById('cMessage');
+      if (!name.value.trim()) { ctMsg.textContent = 'Please enter your name.'; name.focus(); return; }
+      if (!EMAIL_RE.test(email.value.trim())) { ctMsg.textContent = 'Please enter a valid email address.'; email.focus(); return; }
+      if (!message.value.trim()) { ctMsg.textContent = 'Please enter a message.'; message.focus(); return; }
+      sendLead(ctForm, 'contact', null, ctMsg);
+    });
+  }
 
   /* ---------- active nav on scroll ---------- */
   var sections = ['entertainment', 'private-events', 'contact'];
