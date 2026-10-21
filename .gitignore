@@ -7,3 +7,5 @@ node_modules/
 uploads/
 *.dc.html
 support.js
+secrets.production.local
+admin-setup-link.local

@@ -63,9 +63,9 @@
     {
       "binding": "DB",
       "database_name": "fuego-steakhouse",
-      "database_id": "REPLACE_WITH_LIVE_D1_ID",
+      "database_id": "71969808-7b08-428a-b31c-39259a1db521",
       // `wrangler dev --remote` and local dev use the preview copy, never live data.
-      "preview_database_id": "REPLACE_WITH_PREVIEW_D1_ID"
+      "preview_database_id": "2fb26593-87c8-4419-890a-8cf2ab325e28"
     }
   ],
   "r2_buckets": [
@@ -100,7 +100,7 @@
         "WEEKLY_SUMMARY_HOUR": "8"
       },
       "d1_databases": [
-        { "binding": "DB", "database_name": "fuego-steakhouse-preview", "database_id": "REPLACE_WITH_PREVIEW_D1_ID" }
+        { "binding": "DB", "database_name": "fuego-steakhouse-preview", "database_id": "2fb26593-87c8-4419-890a-8cf2ab325e28" }
       ],
       "r2_buckets": [
         { "binding": "MEDIA", "bucket_name": "fuego-media-preview" },
