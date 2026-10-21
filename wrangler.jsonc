@@ -40,9 +40,8 @@
     "BUSINESS_NAME": "Fuego Steakhouse & Bar",
     "BUSINESS_ADDRESS": "921 John F. Kennedy Blvd, North Bergen, NJ 07047 · (201) 455-6055",
     "BUSINESS_PHONE": "(201) 455-6055",
-    // General, reservation, contact and newsletter leads. Owner also wants info@chdiner… here —
-    // add it once the full address is confirmed (invalid addresses are silently dropped).
-    "NOTIFY_EMAILS": "info@fuegosteaks.com",
+    // General, reservation, contact and newsletter leads (private-event leads: see NOTIFY_ROUTES).
+    "NOTIFY_EMAILS": "info@fuegosteaks.com, info@chdiner.com",
     // Per-form overrides (form id -> comma list). Private-event leads go to the events inbox.
     "NOTIFY_ROUTES": "{\"event\":\"events@fuegosteaks.com\"}",
     "MAIL_FROM": "Fuego Steakhouse & Bar <info@fuegosteaks.com>",
