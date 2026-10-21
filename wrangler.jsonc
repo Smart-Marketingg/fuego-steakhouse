@@ -48,7 +48,7 @@
     "MAIL_REPLY_TO": "info@fuegosteaks.com",
     "TIMEZONE": "America/New_York",
     // Numeric GA4 property id (GA Admin -> Property settings). NOT the G-9W4G1DC2TT measurement id.
-    "GA4_PROPERTY_ID": "none",
+    "GA4_PROPERTY_ID": "546575627",
     "MEDIA_URL": "https://media.fuegosteaks.com",
     "BRAND_COLOR": "#c89a52",
     "BRAND_BG": "#100c0a",
@@ -92,7 +92,7 @@
         "MAIL_FROM": "Fuego Steakhouse & Bar <info@fuegosteaks.com>",
         "MAIL_REPLY_TO": "info@fuegosteaks.com",
         "TIMEZONE": "America/New_York",
-        "GA4_PROPERTY_ID": "none",
+        "GA4_PROPERTY_ID": "546575627",
         "MEDIA_URL": "https://media.fuegosteaks.com",
         "BRAND_COLOR": "#c89a52",
         "BRAND_BG": "#100c0a",
