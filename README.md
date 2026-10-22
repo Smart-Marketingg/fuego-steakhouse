@@ -39,8 +39,9 @@ The portal at `/admin/` is a static, dependency-free app (`admin/`) that talks o
                |  com)      leads/:id/file)
 
    GitHub Smart-Marketingg/fuego-steakhouse
-      main   ---- Workers Builds ---- npx wrangler deploy                -> fuego-steakhouse (prod, www.fuegosteaks.com)
-      dev/*  ---- Workers Builds ---- npx wrangler deploy --env preview  -> fuego-steakhouse-preview (workers.dev, own D1 + R2)
+      main   ---- Workers Builds ---- npx wrangler deploy            -> fuego-steakhouse (prod, www.fuegosteaks.com)
+      dev/*  ---- Workers Builds ---- npx wrangler versions upload   -> preview version URL of fuego-steakhouse (not deployed)
+      local  ---- npm run deploy:preview -----------------------------> fuego-steakhouse-preview (workers.dev, own D1 + R2)
 ```
 
 ## 2. Repo layout
@@ -60,7 +61,7 @@ The repo root is the site. Anything listed in `.assetsignore` is not uploaded as
 | `src/leads.js` | `POST /api/lead` capture (origin, honeypot, rate limit, Turnstile, validation, upload by magic bytes, notification + auto-reply in `waitUntil`), lead list/detail/stage/notes/delete/CSV/attachment, dashboard. |
 | `src/email.js` | Resend transport (never throws; logs to `email_log`), branded table-based templates: notification, auto-reply, invite, reset, weekly summary; email health. |
 | `src/settings-crypto.js` | AES-GCM encryption of portal keys with `SETTINGS_KEY`, `resolveSecret` (Cloudflare secret wins over portal value), integration status, GA4 property id, small D1 cache. |
-| `src/settings.js` | Settings API: business info (read-only, from vars), notification emails/routes, Turnstile site key, encrypted keys, connection tests. |
+| `src/settings.js` | Settings API: business info (read-only, from vars), notification emails/routes, Turnstile site key (stored only; the site reads the key from the HTML, see §6), encrypted keys, connection tests. |
 | `src/analytics.js` | GA4 Data API with a WebCrypto RS256 service-account JWT (no SDK), 15-minute cache in D1. |
 | `src/automation.js` | Per-form auto-reply templates (preview, test send), weekly summary (Anthropic when a key exists, plain text otherwise), cron gate on `WEEKLY_SUMMARY_HOUR` in `TIMEZONE`. |
 | `src/media.js` | Media library: image upload/replace/delete in the public `MEDIA` bucket, served from `MEDIA_URL`. |
@@ -111,14 +112,14 @@ Non-live folders still in the repo and excluded by `.assetsignore`: `export/`, `
 |---|---|---|---|
 | `SETTINGS_KEY` | Yes | `openssl rand -base64 32` | Every `/api/*` route except `/api/health` answers `503 not_configured`. Also salts IP hashes and encrypts portal keys. |
 | `RESEND_API_KEY` | No | Resend → API Keys | No emails (notifications, auto-replies, invites, resets, weekly). Leads are still saved; dashboard shows "Resend is not connected"; invite/reset links are shown to the admin instead of emailed. |
-| `TURNSTILE_SECRET` | No | Cloudflare → Turnstile → widget → Secret key | Forms rely on honeypot + rate limit only; dashboard warns "Turnstile is not enabled". |
+| `TURNSTILE_SECRET` | No | Cloudflare → Turnstile → widget "Fuego website forms" → Secret key. Set on both Workers. | Forms rely on honeypot + rate limit only; dashboard warns "Turnstile is not enabled". |
 | `GA_SERVICE_ACCOUNT` | No | Google Cloud → service account → JSON key (paste the whole file) | Analytics shows "Not connected"; weekly summary omits website stats. |
 | `ANTHROPIC_API_KEY` | No | console.anthropic.com | Weekly summary is sent as a plain stats list instead of AI prose. |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | No | Google Cloud → OAuth client (web); redirect URI `https://www.fuegosteaks.com/api/auth/google/callback` | "Sign in with Google" button is hidden; `/api/auth/google` returns 404. |
 
 ### Portal Settings vs Cloudflare secret
 
-Every optional key above can instead be pasted in the portal at **Settings → Integrations** (admin only). Portal values are AES-GCM encrypted with `SETTINGS_KEY` before being written to the D1 `settings` table and are never returned to the browser in full (last 4 characters only). Resolution order in `src/settings-crypto.js` (`resolveSecret`): **a Cloudflare secret always wins; the portal value is used only when the secret is absent.** The Settings page shows the source as `secret`, `portal` or `none`. Entering an empty value removes a portal key. `GA4_PROPERTY_ID` and the Turnstile site key work the other way around: a portal value overrides the var.
+Every optional key above can instead be pasted in the portal at **Settings → Integrations** (admin only). Portal values are AES-GCM encrypted with `SETTINGS_KEY` before being written to the D1 `settings` table and are never returned to the browser in full (last 4 characters only). Resolution order in `src/settings-crypto.js` (`resolveSecret`): **a Cloudflare secret always wins; the portal value is used only when the secret is absent.** The Settings page shows the source as `secret`, `portal` or `none`. Entering an empty value removes a portal key. `GA4_PROPERTY_ID` works the other way around: a portal value overrides the var. The **Turnstile site key** field on the Settings page is stored but nothing reads it; the real site key is hard-coded in the HTML pages (§6).
 
 ## 4. One-time setup
 
@@ -183,8 +184,8 @@ Prerequisites: Node 20 or newer (`package.json` has `"engines": { "node": ">=20"
    - Root directory: `/`
    - Build command: *(empty)*
    - Deploy command: `npx wrangler deploy`
-   - Non-production branch deploy command: `npx wrangler deploy --env preview`
-   Every push to `main` deploys production; `dev` and PR branches deploy `fuego-steakhouse-preview` and the preview URL is posted on the PR.
+   - Non-production branch deploy command ("Version command"): `npx wrangler versions upload`
+   Every push to `main` deploys production. Every push to another branch uploads a *version* of `fuego-steakhouse` that is not deployed; its preview URL is posted on the PR. **Never put `npx wrangler deploy --env preview` here**, see §11. The separate preview Worker is deployed from a laptop with `npm run deploy:preview`.
 9. Custom domains. The `routes` in `wrangler.jsonc` (`www.fuegosteaks.com` and `fuegosteaks.com`, both `custom_domain: true`) are created on deploy. Confirm under Worker → Settings → Domains & Routes; the zone must be on this account. **Cut-over from the old Cloudflare Pages project (do this before the first production deploy):** the zone currently has two CNAME records, `fuegosteaks.com` and `www.fuegosteaks.com`, pointing at `fuego-steakhouse.pages.dev`. While they exist, `wrangler deploy` cannot attach the custom domains and fails with a "hostname already in use" error. In **Workers & Pages → fuego-steakhouse (Pages) → Custom domains**, remove both domains (Cloudflare deletes the CNAMEs with them), confirm under DNS → Records that they are gone, then deploy. Expect a few minutes of downtime between removing the Pages domains and the Worker deploy finishing; do it off-hours and have the deploy ready to run.
 10. Media domain: step 3 above (`media.fuegosteaks.com` on `fuego-media`). `MEDIA_URL` already points at it.
 11. Smoke test: `curl -s https://www.fuegosteaks.com/api/health` → `{"ok":true,"db":true,"settings_key":true,...}`; submit each form; open `/admin/`.
@@ -209,12 +210,14 @@ Four layers, in request order:
 3. **Per-IP limit in D1** — 5 submissions per 10 minutes per hashed IP (`auth_attempts`, scope `lead_ip`) → `429 rate_limited`.
 4. **Turnstile** (when a secret exists) — token verified against `challenges.cloudflare.com/turnstile/v0/siteverify`; missing/invalid → `400 turnstile`.
 
-Enable Turnstile:
+Turnstile is enabled (since PR #59, 2026-10-21). Current state:
 
-1. Cloudflare → Turnstile → Add widget. Hostname `www.fuegosteaks.com` (add `fuegosteaks.com` and the preview workers.dev host if you test there). Mode Managed.
-2. Secret key → `npx wrangler secret put TURNSTILE_SECRET` (or Settings → Integrations → Turnstile).
-3. Site key → portal **Settings → Turnstile site key** (`turnstile_site_key`), **and** in the HTML: `index.html`, `contact.html`, `large-events.html` contain commented blocks marked "Uncomment … once Turnstile is enabled" — uncomment the `<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer>` tag in the head and the `<div class="cf-turnstile" data-sitekey="TURNSTILE_SITE_KEY">` inside each form, replacing `TURNSTILE_SITE_KEY` with the real site key. `lead.js` forwards `cf-turnstile-response` automatically.
-4. Do step 3 before step 2 is live in production, otherwise every submission fails with the "complete the verification" message.
+- Widget: Cloudflare → Turnstile → **Fuego website forms** (Managed mode). Hostnames: `fuegosteaks.com` (covers `www`) and the preview host `fuego-steakhouse-preview.smart-marketing732.workers.dev`.
+- Site key `0x4AAAAAAFfm-OYEtcwxW6P4` is hard-coded in the five pages with forms: `index.html`, `menus.html`, `gift-cards.html`, `large-events.html`, `contact.html`. Each has the `<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer>` tag in the head and a `<div class="cf-turnstile" data-sitekey="…">` inside the form. `lead.js` forwards `cf-turnstile-response` automatically.
+- `TURNSTILE_SECRET` is set as a Cloudflare secret on **both** Workers (`fuego-steakhouse` and `fuego-steakhouse-preview`). `/api/health` reports `turnstile:true` on each.
+- The portal field **Settings → Turnstile site key** (`turnstile_site_key`) is stored but not read by anything; leave it blank.
+
+To rotate the key: create a new widget (or rotate the secret), replace the `data-sitekey` value in the five pages, deploy, then `npx wrangler secret put TURNSTILE_SECRET` on both Workers (`--env preview` for the second). Change the HTML first: a secret with no matching widget in the page fails every submission with the "complete the verification" message. To disable: delete the secret from both Workers (the API then skips the check) and remove the script tag and divs.
 
 Cloudflare WAF rate-limiting rule (edge, before the Worker):
 
@@ -298,8 +301,10 @@ npx -p node@20.19.0 -c "npx wrangler dev"
 
 ## 11. Dev → main workflow and preview isolation
 
-- Work on `dev` (or a feature branch). Push. Workers Builds deploys `fuego-steakhouse-preview` with `--env preview`: a different Worker name, `fuego-steakhouse-preview` D1, `fuego-media-preview`/`fuego-private-preview` R2, its own secrets and its own `SITE_URL` (workers.dev). Preview builds cannot touch live data as long as the `env.preview` ids in `wrangler.jsonc` really are the preview resources.
-- Open a PR `dev` → `main`, test on the preview URL posted on the PR, merge. `main` deploys production. `main` should be a protected branch.
+- Work on `dev` (or a feature branch). Push. Workers Builds runs `npx wrangler versions upload`: the branch code is uploaded as a new, **undeployed** version of the production Worker and a preview URL (`<version>-fuego-steakhouse.smart-marketing732.workers.dev`) is posted on the PR. That version uses the production bindings (live D1 and R2), so treat it as a read-only look at the pages, not a place to submit test leads.
+- For an isolated preview with its own data, deploy the preview Worker from a laptop: `npm run deploy:preview` (= `wrangler deploy --env preview`, Node 20). It has its own name `fuego-steakhouse-preview`, its own D1, `fuego-media-preview`/`fuego-private-preview` R2, its own secrets and its own `SITE_URL` (workers.dev). It cannot touch live data as long as the `env.preview` ids in `wrangler.jsonc` really are the preview resources.
+- **Why Workers Builds must not run `npx wrangler deploy --env preview`.** Workers Builds always deploys to the Worker the repository is connected to and overrides the name from `wrangler.jsonc`. With `--env preview` it therefore uploads the branch code *with the preview bindings and vars* onto the production Worker `fuego-steakhouse`: live traffic on www.fuegosteaks.com gets the preview D1, preview R2 and preview `NOTIFY_EMAILS` until the next `main` build. This happened on 2026-10-21 (build `de8921e2`, branch `feature/turnstile`, 8 hours until the next main build; no leads were lost). Keep the non-production command at `npx wrangler versions upload`, or untick "Builds for non-production branches".
+- Open a PR `dev` → `main`, test on the preview URL posted on the PR (or on the preview Worker), merge. `main` deploys production. `main` should be a protected branch.
 - Pitfall: if `dev` and `main` show merge conflicts that nobody caused (typically after a squash merge or a force-push), do not "resolve" them. Reset `dev` to `main` and re-apply the pending work:
   ```bash
   git checkout dev
@@ -341,10 +346,10 @@ curl -I https://www.fuegosteaks.com/docs/api.md
 | `503 no_schema` | Schema never run on that database. Run `schema.sql` (step 5) on the right db (live vs preview vs local). |
 | Every non-admin login fails on a new site / `no such column: off` | Database was created from an old schema without `users.off`. Run `schema.sql` again (idempotent) and, if the table existed before, `ALTER TABLE users ADD COLUMN off TEXT NOT NULL DEFAULT '[]';`. |
 | Emails not arriving | Settings → Resend shows Not connected, or Test connection says the domain is not verified. Check Dashboard → Email health (sent/failed, last error) and the Audit log. Confirm SPF/DKIM records in Cloudflare DNS and that `MAIL_FROM` is on the verified domain. Check spam. |
-| Preview deploy writes to live leads | `env.preview.d1_databases[0].database_id` or `env.preview.r2_buckets` still point at live resources, or the non-production deploy command is missing `--env preview`. |
-| Forms show "Please complete the verification step" | `TURNSTILE_SECRET` (or portal secret) is set but the `.cf-turnstile` div/script is still commented out, the site key is wrong, or the widget hostname does not include this host. Either finish §6 step 3 or remove the secret. |
+| Preview deploy writes to live leads | `env.preview.d1_databases[0].database_id` or `env.preview.r2_buckets` still point at live resources, or you are looking at a Workers Builds version preview (`<version>-fuego-steakhouse…workers.dev`), which uses production bindings. Use `npm run deploy:preview` for an isolated preview. |
+| Forms show "Please complete the verification step" | `TURNSTILE_SECRET` (or portal secret) is set but the page has no `.cf-turnstile` div/script, the `data-sitekey` is wrong, or the widget hostname list does not include this host (e.g. a new workers.dev preview host). Fix the HTML/widget per §6 or remove the secret. |
 | Weekly summary did not send | Automations → Weekly summary: check enabled, last run, last error. The cron only fires when the local hour equals `WEEKLY_SUMMARY_HOUR` in `TIMEZONE` on Monday; changing the hour outside 12–13 UTC requires updating the `crons` entry. Resend must be connected. Use **Run now** to test. |
-| Workers Builds deployed preview code to production (or vice versa) | Workers & Pages → project → Settings → Builds: production branch must be `main`, deploy command `npx wrangler deploy`, non-production deploy command `npx wrangler deploy --env preview`. |
+| Production serves preview bindings (leads land in the preview D1, `BUSINESS_NAME` ends in "(preview)") after a branch push | The non-production build command was `npx wrangler deploy --env preview` (see §11). Workers & Pages → fuego-steakhouse → Settings → Builds: production branch `main`, deploy command `npx wrangler deploy`, non-production ("Version command") `npx wrangler versions upload`. Push to `main` (or redeploy locally with `npm run deploy`) to restore production, then check the preview D1 `leads` table for anything submitted in the window. |
 | D1 console rejects the schema | The console accepts one line. Paste the contents of `schema.oneline.sql`, not `schema.sql`. |
 | `#set=` link says expired | Token is single use and expires (bootstrap/invite 24 h, reset 15 min). Issue a new one (Team → Reset password, or rerun the bootstrap script). |
 | `403 csrf` from the portal | Missing `X-Requested-With` header or `Origin` not equal to `SITE_URL`/request host. Usually a wrong `SITE_URL` var for that environment. |

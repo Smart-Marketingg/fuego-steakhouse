@@ -72,9 +72,13 @@
     { "binding": "PRIVATE", "bucket_name": "fuego-private", "preview_bucket_name": "fuego-private-preview" }
   ],
 
-  // PREVIEW environment: deployed by Workers Builds for every non-main branch
-  // (build command `npx wrangler deploy --env preview`). Separate Worker name,
-  // separate D1 and R2, workers.dev URL only, so previews never touch live data.
+  // PREVIEW environment: deployed manually with `npm run deploy:preview`
+  // (= `wrangler deploy --env preview`). Separate Worker name, separate D1 and
+  // R2, workers.dev URL only, so previews never touch live data.
+  // NEVER use `--env preview` as the Workers Builds non-production command:
+  // Builds forces the connected Worker name, so it would deploy these preview
+  // bindings onto the production Worker (happened 2026-10-21). Builds runs
+  // `npx wrangler versions upload` for branches instead (README §11).
   "env": {
     "preview": {
       "name": "fuego-steakhouse-preview",
