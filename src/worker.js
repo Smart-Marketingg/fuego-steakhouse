@@ -67,6 +67,7 @@ api.delete('/api/media/:key', P('media.manage'), media.deleteMedia);
 api.get('/api/team', P('team.manage'), team.listTeam);
 api.post('/api/team/invite', P('team.manage'), team.invite);
 api.patch('/api/team/:id', P('team.manage'), team.updateUser);
+api.post('/api/team/:id/invite', P('team.manage'), team.resendInvite);
 api.post('/api/team/:id/reset', P('team.manage'), team.resetUser);
 api.post('/api/team/:id/signout', P('team.manage'), team.signoutUser);
 api.get('/api/settings', P('settings.manage'), settings.getSettings);

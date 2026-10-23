@@ -1,7 +1,7 @@
 // Lead capture (POST /api/lead) and the CRM lead routes.
 import { json, error, redirect, clean, isEmail, isPhone, newId, nowIso, readBody, parseJson, csvCell, resolveRange, emailList, sha256Hex, b64 } from './util.js';
 import { getConfig, STAGES } from './forms.config.js';
-import { originAllowed } from './auth.js';
+import { originAllowed, actorMask } from './auth.js';
 import { audit } from './audit.js';
 import { sendEmail, notificationEmail, autoReplyEmail, emailHealth } from './email.js';
 import { resolveSecret, getSetting } from './settings-crypto.js';
@@ -250,8 +250,11 @@ export async function getLead(ctx) {
   const cfg = getConfig(env);
   const row = await env.DB.prepare('SELECT * FROM leads WHERE id=?').bind(ctx.params.id).first();
   if (!row) return error(404, 'not_found', 'Lead not found.');
-  const notes = (await env.DB.prepare('SELECT n.id, n.body, n.created_at, u.name AS user_name FROM notes n LEFT JOIN users u ON u.id=n.user_id WHERE n.lead_id=? ORDER BY n.created_at DESC').bind(row.id).all()).results;
-  const activity = (await env.DB.prepare('SELECT a.action, a.detail, a.created_at, u.name AS user_name FROM activity a LEFT JOIN users u ON u.id=a.user_id WHERE a.lead_id=? ORDER BY a.created_at DESC LIMIT 100').bind(row.id).all()).results;
+  const mask = await actorMask(ctx);
+  const notes = (await env.DB.prepare('SELECT n.id, n.body, n.created_at, n.user_id, u.name AS user_name FROM notes n LEFT JOIN users u ON u.id=n.user_id WHERE n.lead_id=? ORDER BY n.created_at DESC').bind(row.id).all()).results
+    .map(({ user_id, ...n }) => ({ ...n, user_name: mask(user_id, n.user_name) }));
+  const activity = (await env.DB.prepare('SELECT a.action, a.detail, a.created_at, a.user_id, u.name AS user_name FROM activity a LEFT JOIN users u ON u.id=a.user_id WHERE a.lead_id=? ORDER BY a.created_at DESC LIMIT 100').bind(row.id).all()).results
+    .map(({ user_id, ...a }) => ({ ...a, user_name: mask(user_id, a.user_name) }));
   return json({ lead: shapeLead(row, cfg), notes, activity });
 }
 
@@ -343,9 +346,10 @@ export async function dashboard(ctx) {
     if (row.stage === 'won') byForm[row.form].won += row.n;
     if (row.stage === 'new') byForm[row.form].new += row.n;
   }
+  const mask = await actorMask(ctx);
   const recent = (await env.DB.prepare(
-    'SELECT a.id, a.action, a.detail, a.lead_id, a.created_at, l.name AS lead_name, l.email AS lead_email, u.name AS user_name FROM activity a LEFT JOIN leads l ON l.id=a.lead_id LEFT JOIN users u ON u.id=a.user_id ORDER BY a.created_at DESC LIMIT 15'
-  ).all()).results;
+    'SELECT a.id, a.action, a.detail, a.lead_id, a.created_at, a.user_id, l.name AS lead_name, l.email AS lead_email, u.name AS user_name FROM activity a LEFT JOIN leads l ON l.id=a.lead_id LEFT JOIN users u ON u.id=a.user_id ORDER BY a.created_at DESC LIMIT 15'
+  ).all()).results.map(({ user_id, ...r }) => ({ ...r, user_name: mask(user_id, r.user_name) }));
   const email = await emailHealth(env);
   const warnings = [];
   if (!email.connected) warnings.push('Resend is not connected: lead notifications are not being emailed. Add a key in Settings.');

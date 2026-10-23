@@ -44,6 +44,42 @@ export function sectionsFor(user) {
   return SECTIONS.filter((s) => !off.has(s) && [...perms].some((p) => PERM_SECTION[p] === s));
 }
 
+// ---------- agency accounts ----------
+// Admin accounts whose email is listed in SUPER_ADMINS are agency accounts. They have every
+// admin permission, and the rest of the team never sees them: they are left out of the Team
+// list, their actions are attributed to AGENCY_LABEL in notes/history/audit, and any request
+// aimed at one of them by a non-agency user answers as if the account did not exist.
+export function superEmails(env) {
+  return String((env && env.SUPER_ADMINS) || '').split(/[,\s;]+/).map((s) => s.trim().toLowerCase()).filter(Boolean);
+}
+export function isSuper(env, user) {
+  return !!(user && user.role === 'admin' && user.email && superEmails(env).includes(String(user.email).toLowerCase()));
+}
+export const agencyLabel = (env) => (env && env.AGENCY_NAME) || 'Smart Marketing';
+/** Build the in-memory user from a users row (adds the `super` flag). */
+export function userFromRow(env, row) {
+  const u = { id: row.id, email: row.email, name: row.name, role: row.role, perms: parseJson(row.perms, []), off: parseJson(row.off, []), active: !!row.active };
+  u.super = isSuper(env, u);
+  return u;
+}
+/** ids of agency accounts (for masking joins). */
+export async function superIds(env) {
+  const emails = superEmails(env);
+  if (!emails.length) return new Set();
+  const rows = (await env.DB.prepare(`SELECT id FROM users WHERE lower(email) IN (${emails.map(() => '?').join(',')})`).bind(...emails).all()).results;
+  return new Set(rows.map((r) => r.id));
+}
+/**
+ * Returns mask(userId, displayName): for non-agency viewers, anything done by an agency
+ * account is shown under the agency label. Agency viewers see real names.
+ */
+export async function actorMask(ctx) {
+  if (!ctx.user || ctx.user.super) return (id, name) => name;
+  const ids = await superIds(ctx.env);
+  const label = agencyLabel(ctx.env);
+  return (id, name) => (id && ids.has(id) ? label : name);
+}
+
 /** THE permission check. Fixed two-argument signature. */
 export function can(user, permission) {
   if (!user || !user.active) return false;
@@ -113,7 +149,7 @@ export async function loadSession(ctx) {
   if (now - new Date(row.last_seen).getTime() > 60000) {
     await ctx.env.DB.prepare('UPDATE sessions SET last_seen=? WHERE token_hash=?').bind(nowIso(), tokenHash).run();
   }
-  const user = { id: row.id, email: row.email, name: row.name, role: row.role, perms: parseJson(row.perms, []), off: parseJson(row.off, []), active: !!row.active };
+  const user = userFromRow(ctx.env, row);
   return { user, tokenHash };
 }
 
@@ -200,7 +236,7 @@ export async function login(ctx) {
     await audit(ctx, 'login_fail', email, '');
     return error(401, 'bad_credentials', 'Email or password is incorrect.');
   }
-  const user = { id: row.id, email: row.email, name: row.name, role: row.role, perms: parseJson(row.perms, []), off: parseJson(row.off, []), active: true };
+  const user = userFromRow(env, row);
   ctx.user = user;
   const cookie = await createSession(ctx, user, remember);
   await audit(ctx, 'login_ok', email, remember ? 'remembered' : '');
@@ -228,7 +264,7 @@ export async function me(ctx) {
   const integ = await integrationStatus(env);
   const integrations = Object.fromEntries(Object.entries(integ).map(([k, v]) => [k, !!v.set]));
   return json({
-    user: publicUser(user),
+    user: { ...publicUser(user), ...(user.super ? { super: true } : {}) },
     permissions: permissionsFor(user),
     sections: sectionsFor(user),
     roles: Object.fromEntries(Object.entries(ROLES).map(([k, v]) => [k, { label: v.label, perms: v.perms }])),
@@ -276,7 +312,7 @@ export async function setPassword(ctx) {
     env.DB.prepare('DELETE FROM sessions WHERE user_id=?').bind(row.user_id) // a reset signs out everywhere
   ]);
   const u = await env.DB.prepare('SELECT * FROM users WHERE id=?').bind(row.user_id).first();
-  const user = { id: u.id, email: u.email, name: u.name, role: u.role, perms: parseJson(u.perms, []), off: parseJson(u.off, []), active: true };
+  const user = userFromRow(env, u);
   ctx.user = user;
   const cookie = await createSession(ctx, user, false);
   await audit(ctx, 'password_set', user.email, row.kind);
@@ -333,7 +369,7 @@ export async function googleCallback(ctx) {
   if (!info.email || !info.email_verified) return fail();
   const u = await env.DB.prepare('SELECT * FROM users WHERE email=? AND active=1').bind(String(info.email).toLowerCase()).first();
   if (!u) { await audit(ctx, 'login_fail', info.email, 'google: no account'); return fail(); } // never auto-creates
-  const user = { id: u.id, email: u.email, name: u.name, role: u.role, perms: parseJson(u.perms, []), off: parseJson(u.off, []), active: true };
+  const user = userFromRow(env, u);
   ctx.user = user;
   const cookie = await createSession(ctx, user, false);
   await audit(ctx, 'login_ok', u.email, 'google');

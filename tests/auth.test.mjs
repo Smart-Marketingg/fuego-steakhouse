@@ -56,3 +56,19 @@ test('originAllowed accepts the site, the request host and only this Worker\'s w
   assert.ok(!originAllowed('', url, env));
   assert.ok(!originAllowed('garbage', url, env));
 });
+
+import { superEmails, isSuper, userFromRow, agencyLabel, publicUser } from '../src/auth.js';
+
+test('agency accounts come from SUPER_ADMINS and never leak through publicUser()', () => {
+  const env = { SUPER_ADMINS: ' Jullien@SmartMarketingg.com, ops@agency.test ' };
+  assert.deepEqual(superEmails(env), ['jullien@smartmarketingg.com', 'ops@agency.test']);
+  assert.deepEqual(superEmails({}), []);
+  const row = { id: 'u1', email: 'jullien@smartmarketingg.com', name: 'J', role: 'admin', perms: '[]', off: '[]', active: 1 };
+  const u = userFromRow(env, row);
+  assert.equal(u.super, true);
+  assert.equal(isSuper(env, { ...u, role: 'staff' }), false, 'a staff row with the email is not an agency account');
+  assert.equal(isSuper(env, { email: 'owner@client.test', role: 'admin' }), false);
+  assert.equal('super' in publicUser(u), false, 'team/list shaping must not expose the flag');
+  assert.equal(agencyLabel({}), 'Smart Marketing');
+  assert.equal(agencyLabel({ AGENCY_NAME: 'Agency X' }), 'Agency X');
+});
