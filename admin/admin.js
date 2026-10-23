@@ -182,6 +182,7 @@
   };
   const STAGES = ['new', 'contacted', 'scheduled', 'won', 'closed'];
 
+  function roleLabel(u) { return u && u.super ? 'Super admin' : ((u && u.role) || 'staff'); }
   function can(perm) { return !!(S.me && Array.isArray(S.me.permissions) && S.me.permissions.includes(perm)); }
   function hasSection(id) { return !!(S.me && Array.isArray(S.me.sections) && S.me.sections.includes(id)); }
   function forms() { return (S.config && S.config.forms) || {}; }
@@ -534,10 +535,10 @@
         <div class="crm-user">
           <button type="button" class="crm-user-btn" id="userBtn" aria-haspopup="true" aria-expanded="false" aria-controls="userMenu">
             <span class="crm-avatar" aria-hidden="true">${esc(initials(u.name || u.email))}</span>
-            <span class="who"><b>${esc(u.name || u.email || 'Staff')}</b><span>${esc(u.role || 'staff')}</span></span>
+            <span class="who"><b>${esc(u.name || u.email || 'Staff')}</b><span>${esc(roleLabel(u))}</span></span>
           </button>
           <div class="crm-user-menu" id="userMenu" hidden>
-            <div class="meta">${esc(u.email || '')}<br><span class="gold">${esc(u.role || '')}</span></div>
+            <div class="meta">${esc(u.email || '')}<br><span class="gold">${esc(roleLabel(u))}</span></div>
             <button type="button" data-act="lock">${icon('lock', 'ico-sm')} Lock (sign out)</button>
           </div>
         </div>
@@ -1207,7 +1208,7 @@
       <tbody>${TV.items.map((u) => `<tr data-id="${esc(u.id)}">
         <td data-label="Name" class="no-label"><b>${esc(u.name || '—')}</b>${!u.has_password ? '<span class="sub">Invite pending</span>' : ''}</td>
         <td data-label="Email"><span class="cellv">${esc(u.email)}</span></td>
-        <td data-label="Role"><span class="pill role-${esc(u.role)}">${esc(u.role)}</span></td>
+        <td data-label="Role"><span class="pill role-${esc(u.role)}">${esc(roleLabel(u))}</span></td>
         <td data-label="Status"><span class="pill ${u.active ? 'ok' : ''}">${u.active ? 'Active' : 'Inactive'}</span></td>
         <td data-label="Last login" class="nowrap"><span class="cellv" title="${esc(fmtDate(u.last_login))}">${u.last_login ? esc(fmtRel(u.last_login)) : '<span class="dim">Never</span>'}</span></td>
         <td class="cell-actions no-label"><button type="button" class="btn btn-ghost btn-xs" data-act="tmEdit" data-id="${esc(u.id)}">Edit</button>${!u.has_password ? `<button type="button" class="btn btn-ghost btn-xs" data-act="tmResend" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Resend invite</button>` : `<button type="button" class="btn btn-ghost btn-xs" data-act="tmReset" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Reset password</button>`}<button type="button" class="btn btn-ghost btn-xs" data-act="tmSignout" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Sign out everywhere</button></td></tr>`).join('')}</tbody></table></div>`;
