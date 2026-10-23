@@ -13,7 +13,7 @@ export async function audit(ctx, action, target = '', detail = '') {
 }
 
 export const AUDIT_ACTIONS = [
-  'login_ok', 'login_fail', 'logout', 'logout_all', 'password_set', 'invite', 'reset_link', 'user_update', 'user_signout',
+  'login_ok', 'login_fail', 'logout', 'logout_all', 'password_set', 'invite', 'reset_link', 'user_update', 'user_signout', 'user_remove',
   'lead_stage', 'lead_note', 'lead_delete', 'lead_export', 'settings_update', 'settings_test', 'automation_update',
   'automation_test', 'media_upload', 'media_delete', 'audit_export', 'weekly_summary',
   'crm_pause', 'crm_pause_fail', 'crm_resume', 'crm_resume_fail', 'signout_everyone', 'queue_import'
@@ -48,7 +48,7 @@ export async function listAudit(ctx) {
   const rows = (await env.DB.prepare(
     `SELECT a.id, a.at, a.user_id, u.name AS user_name, u.email AS user_email, a.action, a.target, a.detail FROM audit_log a LEFT JOIN users u ON u.id=a.user_id ${where} ORDER BY a.at DESC LIMIT ? OFFSET ?`
   ).bind(...args, limit, (page - 1) * limit).all()).results;
-  return json({ items: rows.map((r) => maskRow(ctx, r)), total, page, limit, actions: AUDIT_ACTIONS });
+  return json({ items: rows.map((r) => maskRow(ctx, r.user_id && !r.user_name && !r.user_email ? { ...r, user_name: 'Former team member' } : r)), total, page, limit, actions: AUDIT_ACTIONS });
 }
 
 // For non-agency viewers, agency accounts appear under the agency label (never their email),

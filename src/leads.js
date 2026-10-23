@@ -262,9 +262,9 @@ export async function getLead(ctx) {
   if (!row) return error(404, 'not_found', 'Lead not found.');
   const mask = await actorMask(ctx);
   const notes = (await env.DB.prepare('SELECT n.id, n.body, n.created_at, n.user_id, u.name AS user_name FROM notes n LEFT JOIN users u ON u.id=n.user_id WHERE n.lead_id=? ORDER BY n.created_at DESC').bind(row.id).all()).results
-    .map(({ user_id, ...n }) => ({ ...n, user_name: mask(user_id, n.user_name) }));
+    .map(({ user_id, ...n }) => ({ ...n, user_name: mask(user_id, n.user_name || (user_id ? 'Former team member' : null)) }));
   const activity = (await env.DB.prepare('SELECT a.action, a.detail, a.created_at, a.user_id, u.name AS user_name FROM activity a LEFT JOIN users u ON u.id=a.user_id WHERE a.lead_id=? ORDER BY a.created_at DESC LIMIT 100').bind(row.id).all()).results
-    .map(({ user_id, ...a }) => ({ ...a, user_name: mask(user_id, a.user_name) }));
+    .map(({ user_id, ...a }) => ({ ...a, user_name: mask(user_id, a.user_name || (user_id ? 'Former team member' : null)) }));
   return json({ lead: shapeLead(row, cfg), notes, activity });
 }
 
