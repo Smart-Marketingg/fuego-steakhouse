@@ -1184,8 +1184,8 @@
      VIEW: TEAM
      ============================================================ */
   const TV = { items: [] };
-  const STAFF_EXTRA_PERMS = ['leads.delete', 'leads.export', 'automations.manage', 'media.manage', 'audit.view'];
-  const PERM_LABELS = { 'leads.delete': 'Delete leads', 'leads.export': 'Export CSV', 'automations.manage': 'Manage automations', 'media.manage': 'Manage media', 'audit.view': 'View audit log' };
+  const STAFF_EXTRA_PERMS = ['leads.delete', 'leads.export', 'automations.manage', 'media.manage', 'team.manage', 'audit.view'];
+  const PERM_LABELS = { 'leads.delete': 'Delete leads', 'leads.export': 'Export CSV', 'automations.manage': 'Manage automations', 'media.manage': 'Manage media', 'team.manage': 'Manage team (invite, edit, remove)', 'audit.view': 'View audit log' };
   VIEWS.team = {
     render(root, q, token) {
       root.innerHTML = `<div class="page-head"><div><p class="eyebrow"><span class="hair"></span>Admin</p><h1>Team</h1></div>
@@ -1211,7 +1211,7 @@
         <td data-label="Role"><span class="pill role-${esc(u.role)}">${esc(roleLabel(u))}</span></td>
         <td data-label="Status"><span class="pill ${u.active ? 'ok' : ''}">${u.active ? 'Active' : 'Inactive'}</span></td>
         <td data-label="Last login" class="nowrap"><span class="cellv" title="${esc(fmtDate(u.last_login))}">${u.last_login ? esc(fmtRel(u.last_login)) : '<span class="dim">Never</span>'}</span></td>
-        <td class="cell-actions no-label"><button type="button" class="btn btn-ghost btn-xs" data-act="tmEdit" data-id="${esc(u.id)}">Edit</button>${!u.has_password ? `<button type="button" class="btn btn-ghost btn-xs" data-act="tmResend" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Resend invite</button>` : `<button type="button" class="btn btn-ghost btn-xs" data-act="tmReset" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Reset password</button>`}<button type="button" class="btn btn-ghost btn-xs" data-act="tmSignout" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Sign out everywhere</button></td></tr>`).join('')}</tbody></table></div>`;
+        <td class="cell-actions no-label"><button type="button" class="btn btn-ghost btn-xs" data-act="tmEdit" data-id="${esc(u.id)}">Edit</button>${!u.has_password ? `<button type="button" class="btn btn-ghost btn-xs" data-act="tmResend" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Resend invite</button>` : `<button type="button" class="btn btn-ghost btn-xs" data-act="tmReset" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Reset password</button>`}<button type="button" class="btn btn-ghost btn-xs" data-act="tmSignout" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Sign out everywhere</button>${S.me.user && S.me.user.id === u.id ? '' : `<button type="button" class="btn btn-ghost btn-xs danger" data-act="tmRemove" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Remove</button>`}</td></tr>`).join('')}</tbody></table></div>`;
   }
   function userFormHtml(u) {
     u = u || { role: 'staff', perms: [], off: [], active: true };
@@ -1298,6 +1298,14 @@
       if (r.link) showLinkDialog('Reset link', 'Email is not connected, so the link was not sent. Share it with ' + b.dataset.email + ' (expires in 15 minutes).', r.link);
       else toast('Reset link sent to ' + b.dataset.email);
     } catch (e) { toast(e.message || 'Could not create a reset link', 'err'); }
+  };
+  ACTIONS.tmRemove = async (b) => {
+    const ok = await confirmDialog({ title: 'Remove this account?', text: `${b.dataset.email} will be signed out and removed, and any pending invite link stops working. Their notes and history stay. To pause access temporarily, use Edit → Active instead.`, confirm: 'Remove account', danger: true });
+    if (!ok) return;
+    try {
+      await api('/api/team/' + encodeURIComponent(b.dataset.id), { method: 'DELETE' });
+      TV.items = TV.items.filter((x) => x.id !== b.dataset.id); renderTeam(); toast('Account removed');
+    } catch (e) { toast(e.message || 'Could not remove the account', 'err'); }
   };
   ACTIONS.tmSignout = async (b) => {
     const ok = await confirmDialog({ title: 'Sign out everywhere?', text: `Every active session for ${b.dataset.email} will be ended. They can sign in again right away.`, confirm: 'Sign out everywhere', danger: true });

@@ -121,6 +121,22 @@ export async function resetUser(ctx) {
   return json({ ok: true, sent, link: sent ? undefined : link });
 }
 
+/** DELETE /api/team/:id — remove an account for good. Their notes and history stay, attributed to "Former team member". */
+export async function removeUser(ctx) {
+  const { env } = ctx;
+  const u = await loadTarget(ctx);
+  if (!u) return notFound();
+  if (u.id === ctx.user.id) return error(400, 'self', "You can't remove yourself.");
+  if (u.role === 'admin' && u.active && (await lastActiveAdmin(env, u.id))) return error(400, 'last_admin', 'There must be at least one active admin.');
+  await env.DB.batch([
+    env.DB.prepare('DELETE FROM sessions WHERE user_id=?').bind(u.id),
+    env.DB.prepare('DELETE FROM set_tokens WHERE user_id=?').bind(u.id),
+    env.DB.prepare('DELETE FROM users WHERE id=?').bind(u.id)
+  ]);
+  await audit(ctx, 'user_remove', u.email, `${u.role}${u.pass_hash ? '' : ' · invite pending'}`);
+  return json({ ok: true });
+}
+
 export async function signoutUser(ctx) {
   const { env } = ctx;
   const u = await loadTarget(ctx);
