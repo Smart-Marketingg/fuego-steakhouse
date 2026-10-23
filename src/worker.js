@@ -14,6 +14,7 @@ import * as settings from './settings.js';
 import * as audit from './audit.js';
 import { analytics } from './analytics.js';
 import * as automation from './automation.js';
+import * as system from './system.js';
 
 const VERSION = '1.0.0';
 const api = new Router();
@@ -73,6 +74,13 @@ api.post('/api/team/:id/signout', P('team.manage'), team.signoutUser);
 api.get('/api/settings', P('settings.manage'), settings.getSettings);
 api.put('/api/settings', P('settings.manage'), settings.putSettings);
 api.post('/api/settings/test/:integration', P('settings.manage'), settings.testIntegration);
+// ---- system controls (agency accounts; 404 for everyone else) ----
+const S = system.requireSuper;
+api.get('/api/system', S(), system.status);
+api.post('/api/system/pause', S(), system.pause);
+api.post('/api/system/resume', S(), system.resume);
+api.post('/api/system/signout-everyone', S(), system.signoutEveryone);
+api.post('/api/system/import-queue', S(), system.importQueue);
 api.get('/api/audit', P('audit.view'), audit.listAudit);
 api.get('/api/audit/export.csv', P('audit.view'), audit.exportAudit);
 
@@ -93,6 +101,11 @@ async function handleApi(request, env, ctx, url) {
     try {
       const s = await auth.loadSession(c);
       if (s) { c.user = s.user; c.session = s; }
+      // While paused, only agency sessions are honoured; any other live session is ended.
+      if (c.user && !c.user.super && (await system.isPaused(env))) {
+        await env.DB.prepare('DELETE FROM sessions WHERE token_hash=?').bind(s.tokenHash).run();
+        c.user = null; c.session = null;
+      }
     } catch (e) {
       if (/no such table/i.test(String(e))) return error(503, 'no_schema', 'Database schema has not been run yet. See README §4, step 5.');
       throw e;
@@ -139,8 +152,8 @@ export default {
         if (n) console.log('retried pending notifications', n);
       } catch (e) { console.error('notification retry failed', e); }
       try {
-        const r = await automation.scheduledWeekly(env);
-        console.log('weekly summary', JSON.stringify(r));
+        if (await system.isPaused(env)) console.log('weekly summary skipped: CRM paused');
+        else { const r = await automation.scheduledWeekly(env); console.log('weekly summary', JSON.stringify(r)); }
       } catch (e) { console.error('weekly summary failed', e); }
     })());
   }
