@@ -5,8 +5,11 @@ import { audit } from './audit.js';
 import { sendEmail, inviteEmail, resetEmail } from './email.js';
 import { resolveSecret } from './settings-crypto.js';
 
-function shape(u) {
-  return { ...publicUser({ ...u, perms: parseJson(u.perms, []), off: parseJson(u.off, []) }), active: !!u.active, created_at: u.created_at, last_login: u.last_login, has_password: !!u.pass_hash };
+// `super` is only ever included for agency viewers (everyone else never receives those rows at all).
+function shape(u, ctx) {
+  const out = { ...publicUser({ ...u, perms: parseJson(u.perms, []), off: parseJson(u.off, []) }), active: !!u.active, created_at: u.created_at, last_login: u.last_login, has_password: !!u.pass_hash };
+  if (ctx && ctx.user && ctx.user.super && isSuper(ctx.env, u)) out.super = true;
+  return out;
 }
 function cleanPerms(v) { return (Array.isArray(v) ? v : []).filter((p) => PERMISSIONS.includes(p)); }
 function cleanOff(v) { return (Array.isArray(v) ? v : []).filter((s) => SECTIONS.includes(s)); }
@@ -23,7 +26,7 @@ async function loadTarget(ctx, extra = '') {
 export async function listTeam(ctx) {
   let rows = (await ctx.env.DB.prepare('SELECT * FROM users ORDER BY active DESC, role, name').all()).results;
   if (!ctx.user.super) rows = rows.filter((r) => !isSuper(ctx.env, r));
-  return json({ items: rows.map(shape), roles: Object.fromEntries(Object.entries(ROLES).map(([k, v]) => [k, v.label])), permissions: PERMISSIONS, sections: SECTIONS });
+  return json({ items: rows.map((r) => shape(r, ctx)), roles: Object.fromEntries(Object.entries(ROLES).map(([k, v]) => [k, v.label])), permissions: PERMISSIONS, sections: SECTIONS });
 }
 
 async function lastActiveAdmin(env, exceptId) {
@@ -60,7 +63,7 @@ export async function invite(ctx) {
   if (connected) sent = (await sendEmail(env, inviteEmail(env, { name, link, inviter: inviterLabel(ctx), to: email }), { kind: 'invite' })).ok;
   await audit(ctx, 'invite', email, `${role}${sent ? '' : ' · link shown to admin'}`);
   // The link is only handed back when it could not be emailed.
-  return json({ ok: true, user: shape(user), sent, link: sent ? undefined : link });
+  return json({ ok: true, user: shape(user, ctx), sent, link: sent ? undefined : link });
 }
 // Invites from an agency account are signed by the agency, not a person.
 const inviterLabel = (ctx) => (ctx.user.super ? agencyLabel(ctx.env) : (ctx.user.name || ctx.user.email));
@@ -102,7 +105,7 @@ export async function updateUser(ctx) {
   if (!next.active) await env.DB.prepare('DELETE FROM sessions WHERE user_id=?').bind(u.id).run();
   const changed = Object.keys(next).filter((k) => String(next[k]) !== String(u[k]));
   await audit(ctx, 'user_update', u.email, changed.join(', '));
-  return json({ ok: true, user: shape(await env.DB.prepare('SELECT * FROM users WHERE id=?').bind(u.id).first()) });
+  return json({ ok: true, user: shape(await env.DB.prepare('SELECT * FROM users WHERE id=?').bind(u.id).first(), ctx) });
 }
 
 export async function resetUser(ctx) {
