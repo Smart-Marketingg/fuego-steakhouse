@@ -72,3 +72,15 @@ test('agency accounts come from SUPER_ADMINS and never leak through publicUser()
   assert.equal(agencyLabel({}), 'Smart Marketing');
   assert.equal(agencyLabel({ AGENCY_NAME: 'Agency X' }), 'Agency X');
 });
+
+import { requireSuper, PAUSE_PHRASE, RESUME_PHRASE } from '../src/system.js';
+
+test('system routes answer 404 to non-agency users and pass agency users', async () => {
+  const mw = requireSuper();
+  const r1 = await mw({ user: null });
+  assert.equal(r1.status, 401);
+  const r2 = await mw({ user: { id: 'x', role: 'admin', super: false } });
+  assert.equal(r2.status, 404);
+  assert.equal(await mw({ user: { id: 'y', role: 'admin', super: true } }), undefined);
+  assert.ok(PAUSE_PHRASE && RESUME_PHRASE && PAUSE_PHRASE !== RESUME_PHRASE);
+});

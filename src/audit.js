@@ -15,7 +15,8 @@ export async function audit(ctx, action, target = '', detail = '') {
 export const AUDIT_ACTIONS = [
   'login_ok', 'login_fail', 'logout', 'logout_all', 'password_set', 'invite', 'reset_link', 'user_update', 'user_signout', 'user_remove',
   'lead_stage', 'lead_note', 'lead_delete', 'lead_export', 'settings_update', 'settings_test', 'automation_update',
-  'automation_test', 'media_upload', 'media_delete', 'audit_export', 'weekly_summary'
+  'automation_test', 'media_upload', 'media_delete', 'audit_export', 'weekly_summary',
+  'crm_pause', 'crm_pause_fail', 'crm_resume', 'crm_resume_fail', 'signout_everyone', 'queue_import'
 ];
 
 function buildQuery(ctx) {

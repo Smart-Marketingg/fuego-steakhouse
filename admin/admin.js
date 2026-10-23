@@ -148,7 +148,9 @@
       rate_limited: 'Too many attempts. Please wait a few minutes.',
       not_connected: 'Not connected.',
       expired: 'This link has expired.',
-      bad_credentials: 'Email or password is incorrect.'
+      bad_credentials: 'Email or password is incorrect.',
+      unavailable: 'The CRM is temporarily unavailable. Please try again later.',
+      phrase: 'The confirmation phrase did not match.'
     };
     if (map[code]) return map[code];
     if (status >= 500) return 'The server had a problem. Please try again.';
@@ -178,7 +180,8 @@
     media:       { label: 'Media',       icon: 'media',       group: 'Content' },
     team:        { label: 'Team',        icon: 'team',        group: 'Admin' },
     settings:    { label: 'Settings',    icon: 'settings',    group: 'Admin' },
-    audit:       { label: 'Audit log',   icon: 'audit',       group: 'Admin' }
+    audit:       { label: 'Audit log',   icon: 'audit',       group: 'Admin' },
+    system:      { label: 'System',      icon: 'settings',    group: 'Admin' }
   };
   const STAGES = ['new', 'contacted', 'scheduled', 'won', 'closed'];
 
@@ -543,6 +546,7 @@
           </div>
         </div>
       </header>
+      ${S.me.system && S.me.system.off ? `<div class="notice warn sys-banner" role="status"><span class="ico">${icon('settings', 'ico-sm')}</span><span><b>CRM is paused.</b> Only agency accounts can sign in; website leads are emailed and held for import; automations are off${S.me.system.at ? ' since ' + esc(fmtDate(S.me.system.at)) : ''}. <a href="#/system">Open System</a></span></div>` : ''}
       <aside class="crm-side" id="crmSide"><nav aria-label="Sections">${navHtml}</nav>
         <div class="crm-side-foot">${esc(bizName())}<br><a href="${esc(site)}" target="_blank" rel="noopener">Open website ↗</a></div>
       </aside>
@@ -1410,6 +1414,80 @@
       toast('Settings saved'); msg.textContent = 'Saved.'; msg.className = 'form-msg ok';
       VIEWS.settings.load(++S.viewToken); // reload so statuses + last4 refresh and secrets are not left in inputs
     } catch (e) { msg.textContent = fieldErrors(e) || e.message || 'Could not save.'; msg.className = 'form-msg err'; b.disabled = false; }
+  };
+
+  /* ============================================================
+     VIEW: SYSTEM (agency accounts only)
+     ============================================================ */
+  const SY = { d: null };
+  VIEWS.system = {
+    render(root, q, token) {
+      root.innerHTML = `<div class="page-head"><div><p class="eyebrow"><span class="hair"></span>Admin</p><h1>System</h1></div></div><div id="syBody">${skeleton(4)}</div>`;
+      this.load(token);
+    },
+    async load(token) {
+      const body = $('#syBody'); if (!body) return;
+      let d;
+      try { d = await api('/api/system'); } catch (e) { if (token === S.viewToken) body.innerHTML = errorHtml(e); return; }
+      if (token !== S.viewToken) return;
+      SY.d = d; renderSystem();
+    }
+  };
+  function renderSystem() {
+    const body = $('#syBody'), d = SY.d; if (!body || !d) return;
+    const off = d.state && d.state.off;
+    body.innerHTML = `
+      <div class="card"><div class="card-head"><h2>Status</h2><span class="pill ${off ? '' : 'ok'}">${off ? 'Paused' : 'Running'}</span></div>
+        ${off ? `<p>Paused ${d.state.at ? 'since ' + esc(fmtDate(d.state.at)) : ''}${d.state.by_email ? ' by ' + esc(d.state.by_email) : ''}. Non-agency sign-ins are refused with a neutral message, website leads are emailed and held, and automations are off.</p>
+          ${d.can_resume ? '<p class="muted small">You paused it, so you can turn it back on.</p>' : '<p class="muted small">Only the account that paused the CRM can turn it back on.</p>'}
+          <p><button type="button" class="btn btn-gold btn-sm" data-act="syResume" ${d.can_resume ? '' : 'disabled'}>Turn the CRM back on</button></p>`
+        : `<p>Everything is running normally. ${d.sessions} active session${d.sessions === 1 ? '' : 's'}.</p>
+          <p class="muted small">Pausing signs out everyone except agency accounts, refuses other sign-ins, holds new website leads (still emailed) and pauses automations. It needs your password and a typed confirmation.</p>
+          <p><button type="button" class="btn btn-ghost btn-sm" data-act="syPause">Pause the CRM</button></p>`}
+      </div>
+      <div class="card"><div class="card-head"><h2>Held leads</h2><span class="pill">${d.queued}</span></div>
+        <p class="muted small">Website submissions received while paused. They were emailed at the time; import them to add them to Leads.</p>
+        <p><button type="button" class="btn btn-ghost btn-sm" data-act="syImport" ${d.queued ? '' : 'disabled'}>Import ${d.queued || ''} held lead${d.queued === 1 ? '' : 's'}</button></p>
+      </div>
+      <div class="card"><div class="card-head"><h2>Sessions</h2></div>
+        <p class="muted small">Ends every session except yours. People can sign in again right away.</p>
+        <p><button type="button" class="btn btn-ghost btn-sm" data-act="sySignoutAll">Sign out everyone</button></p>
+      </div>`;
+  }
+  function confirmWithPassword({ title, text, phrase, confirm, danger, path }) {
+    openDialog({ title, width: '560px',
+      body: `<form id="syForm" class="stack" novalidate><p>${text}</p>
+        <div class="field"><label for="syPhrase">Type <b>${esc(phrase)}</b> to confirm</label><input id="syPhrase" type="text" autocomplete="off" autocapitalize="characters"></div>
+        <div class="field"><label for="syPass">Your password</label><input id="syPass" type="password" autocomplete="current-password"></div>
+        <p class="form-msg err" id="syMsg" role="alert"></p></form>`,
+      footer: `<button type="button" class="btn btn-ghost btn-sm" data-close>Cancel</button><button type="button" class="btn ${danger ? 'btn-danger' : 'btn-gold'} btn-sm" data-save>${esc(confirm)}</button>`,
+      onMount(dlg, close) {
+        const go = async () => {
+          const msg = $('#syMsg', dlg); msg.textContent = '';
+          const ph = $('#syPhrase', dlg).value.trim(), pw = $('#syPass', dlg).value;
+          if (ph !== phrase) { msg.textContent = 'Type ' + phrase + ' exactly to confirm.'; return; }
+          if (!pw) { msg.textContent = 'Enter your password.'; return; }
+          $('[data-save]', dlg).disabled = true;
+          try { await api(path, { method: 'POST', body: { phrase: ph, password: pw } }); close(); toast('Done'); S.me = await api('/api/auth/me'); S.shellMounted = false; route(); VIEWS.system.load(++S.viewToken); }
+          catch (e) { msg.textContent = fieldErrors(e) || e.message; $('[data-save]', dlg).disabled = false; }
+        };
+        $('[data-save]', dlg).addEventListener('click', go);
+        $('#syForm', dlg).addEventListener('submit', (e) => { e.preventDefault(); go(); });
+      } });
+  }
+  ACTIONS.syPause = () => confirmWithPassword({ title: 'Pause the CRM?', danger: true, confirm: 'Pause the CRM', phrase: (SY.d && SY.d.phrases.pause) || 'SHUT DOWN', path: '/api/system/pause',
+    text: 'Everyone except agency accounts is signed out and cannot sign in. Website leads keep being emailed and are held for import. Auto-replies and the weekly summary stop. Only you will be able to turn it back on.' });
+  ACTIONS.syResume = () => confirmWithPassword({ title: 'Turn the CRM back on?', confirm: 'Turn it back on', phrase: (SY.d && SY.d.phrases.resume) || 'RESTORE', path: '/api/system/resume',
+    text: 'Sign-ins and automations resume immediately. Held leads stay in the queue until you import them.' });
+  ACTIONS.syImport = async () => {
+    try { const r = await api('/api/system/import-queue', { method: 'POST' }); toast(`Imported ${r.imported} lead${r.imported === 1 ? '' : 's'}${r.failed ? ', ' + r.failed + ' failed' : ''}`); VIEWS.system.load(++S.viewToken); }
+    catch (e) { toast(e.message || 'Import failed', 'err'); }
+  };
+  ACTIONS.sySignoutAll = async () => {
+    const ok = await confirmDialog({ title: 'Sign out everyone?', text: 'Every session except yours will be ended. People can sign in again right away.', confirm: 'Sign out everyone', danger: true });
+    if (!ok) return;
+    try { const r = await api('/api/system/signout-everyone', { method: 'POST' }); toast(`${r.sessions_ended} session${r.sessions_ended === 1 ? '' : 's'} ended`); VIEWS.system.load(++S.viewToken); }
+    catch (e) { toast(e.message || 'Could not sign everyone out', 'err'); }
   };
 
   /* ============================================================

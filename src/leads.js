@@ -2,6 +2,7 @@
 import { json, error, redirect, clean, isEmail, isPhone, newId, nowIso, readBody, parseJson, csvCell, resolveRange, emailList, sha256Hex, b64 } from './util.js';
 import { getConfig, STAGES } from './forms.config.js';
 import { originAllowed, actorMask } from './auth.js';
+import { isPaused, queueLead } from './system.js';
 import { audit } from './audit.js';
 import { sendEmail, notificationEmail, autoReplyEmail, emailHealth } from './email.js';
 import { resolveSecret, getSetting } from './settings-crypto.js';
@@ -121,6 +122,15 @@ export async function captureLead(ctx) {
     id: newId('ld'), created_at: nowIso(), form: formId, pipeline: def.pipeline, stage: 'new',
     name, email, phone, topic, message, fields, file_key: fileKey, file_name: fileName, page, utm, ip_hash: ctx.ip, spam_score: 0
   };
+  // CRM paused: email the team as usual, hold the record encrypted, write nothing else.
+  if (await isPaused(env)) {
+    const routes = parseJson(env.NOTIFY_ROUTES, {});
+    const override = (await getSetting(env, 'notify_routes')) || {};
+    const to = emailList(override[formId] || routes[formId] || (await getSetting(env, 'notify_emails')) || env.NOTIFY_EMAILS);
+    const r = await sendEmail(env, { ...notificationEmail(env, lead, def, attachment), to }, { kind: 'notification', leadId: lead.id });
+    await queueLead(env, { ...lead, email_status: r.ok ? 'sent' : 'failed' }, def.label);
+    return asJson ? json({ ok: true, id: lead.id, thanks: def.thanks }) : redirect(`/thank-you?type=${def.thanks}`, 303);
+  }
   await env.DB.batch([
     env.DB.prepare('INSERT INTO leads (id,created_at,updated_at,form,pipeline,stage,name,email,phone,topic,message,fields,file_key,file_name,page,utm,ip_hash,spam_score,email_status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
       .bind(lead.id, lead.created_at, lead.created_at, formId, def.pipeline, 'new', name, email, phone, topic, message, JSON.stringify(fields), fileKey, fileName, page, JSON.stringify(utm), ctx.ip, 0, 'pending'),

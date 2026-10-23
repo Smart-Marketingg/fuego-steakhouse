@@ -7,6 +7,9 @@ import { b64, fromB64, randomToken, sha256Hex, timingSafeEqual, nowIso, json, er
 import { audit } from './audit.js';
 import { resolveGoogle, integrationStatus } from './settings-crypto.js';
 import { sendEmail, resetEmail } from './email.js';
+import { getState } from './system.js';
+
+const PAUSED_MSG = 'The CRM is temporarily unavailable. Please try again later.';
 
 export const COOKIE = 'crm_session';
 export const CSRF_HEADER = 'x-requested-with';
@@ -237,6 +240,7 @@ export async function login(ctx) {
     return error(401, 'bad_credentials', 'Email or password is incorrect.');
   }
   const user = userFromRow(env, row);
+  if (!user.super && (await getState(env)).off) { await audit(ctx, 'login_fail', email, 'paused'); return error(503, 'unavailable', PAUSED_MSG); }
   ctx.user = user;
   const cookie = await createSession(ctx, user, remember);
   await audit(ctx, 'login_ok', email, remember ? 'remembered' : '');
@@ -263,10 +267,12 @@ export async function me(ctx) {
   const { env, user } = ctx;
   const integ = await integrationStatus(env);
   const integrations = Object.fromEntries(Object.entries(integ).map(([k, v]) => [k, !!v.set]));
+  const state = user.super ? await getState(env) : null;
   return json({
     user: { ...publicUser(user), ...(user.super ? { super: true } : {}) },
+    ...(user.super ? { system: { off: state.off, at: state.at || null, mine: state.off && state.by === user.id } } : {}),
     permissions: permissionsFor(user),
-    sections: sectionsFor(user),
+    sections: [...sectionsFor(user), ...(user.super ? ['system'] : [])],
     roles: Object.fromEntries(Object.entries(ROLES).map(([k, v]) => [k, { label: v.label, perms: v.perms }])),
     all_permissions: PERMISSIONS,
     all_sections: SECTIONS,
@@ -314,6 +320,7 @@ export async function setPassword(ctx) {
   const u = await env.DB.prepare('SELECT * FROM users WHERE id=?').bind(row.user_id).first();
   const user = userFromRow(env, u);
   ctx.user = user;
+  if (!user.super && (await getState(env)).off) { await audit(ctx, 'password_set', user.email, row.kind + ' (paused, no session)'); return json({ ok: true, paused: true, message: PAUSED_MSG }); }
   const cookie = await createSession(ctx, user, false);
   await audit(ctx, 'password_set', user.email, row.kind);
   return json({ ok: true, user: publicUser(user) }, 200, { 'Set-Cookie': cookie });
@@ -370,6 +377,7 @@ export async function googleCallback(ctx) {
   const u = await env.DB.prepare('SELECT * FROM users WHERE email=? AND active=1').bind(String(info.email).toLowerCase()).first();
   if (!u) { await audit(ctx, 'login_fail', info.email, 'google: no account'); return fail(); } // never auto-creates
   const user = userFromRow(env, u);
+  if (!user.super && (await getState(env)).off) { await audit(ctx, 'login_fail', u.email, 'google: paused'); return redirect('/admin/#error=unavailable'); }
   ctx.user = user;
   const cookie = await createSession(ctx, user, false);
   await audit(ctx, 'login_ok', u.email, 'google');

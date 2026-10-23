@@ -140,3 +140,19 @@ CREATE TABLE IF NOT EXISTS cache (
   value       TEXT NOT NULL,
   expires_at  TEXT NOT NULL
 );
+
+-- Operational state (e.g. the CRM pause switch). One JSON value per key.
+CREATE TABLE IF NOT EXISTS system_state (
+  key         TEXT PRIMARY KEY,
+  value       TEXT NOT NULL,
+  updated_by  TEXT,
+  updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+);
+
+-- Website submissions received while the CRM is paused: emailed as usual, held here encrypted
+-- (AES-GCM with SETTINGS_KEY) until an agency account imports them.
+CREATE TABLE IF NOT EXISTS lead_queue (
+  id           TEXT PRIMARY KEY,
+  received_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  enc_payload  TEXT NOT NULL
+);
