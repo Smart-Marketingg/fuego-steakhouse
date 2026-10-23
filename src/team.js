@@ -1,6 +1,6 @@
 // Team management (admin): users, invites, roles, permissions, hidden sections.
 import { json, error, clean, isEmail, readBody, parseJson, newId, nowIso } from './util.js';
-import { PERMISSIONS, SECTIONS, ROLES, issueSetToken, publicUser } from './auth.js';
+import { PERMISSIONS, SECTIONS, ROLES, issueSetToken, publicUser, isSuper, superEmails, agencyLabel } from './auth.js';
 import { audit } from './audit.js';
 import { sendEmail, inviteEmail, resetEmail } from './email.js';
 import { resolveSecret } from './settings-crypto.js';
@@ -11,8 +11,18 @@ function shape(u) {
 function cleanPerms(v) { return (Array.isArray(v) ? v : []).filter((p) => PERMISSIONS.includes(p)); }
 function cleanOff(v) { return (Array.isArray(v) ? v : []).filter((s) => SECTIONS.includes(s)); }
 
+// A non-agency user must never learn that an agency account exists: hidden from the list,
+// and any request aimed at one answers like an unknown user.
+const hiddenFrom = (ctx, row) => !ctx.user.super && isSuper(ctx.env, row);
+const notFound = () => error(404, 'not_found', 'User not found.');
+async function loadTarget(ctx, extra = '') {
+  const u = await ctx.env.DB.prepare(`SELECT * FROM users WHERE id=?${extra}`).bind(ctx.params.id).first();
+  return u && !hiddenFrom(ctx, u) ? u : null;
+}
+
 export async function listTeam(ctx) {
-  const rows = (await ctx.env.DB.prepare('SELECT * FROM users ORDER BY active DESC, role, name').all()).results;
+  let rows = (await ctx.env.DB.prepare('SELECT * FROM users ORDER BY active DESC, role, name').all()).results;
+  if (!ctx.user.super) rows = rows.filter((r) => !isSuper(ctx.env, r));
   return json({ items: rows.map(shape), roles: Object.fromEntries(Object.entries(ROLES).map(([k, v]) => [k, v.label])), permissions: PERMISSIONS, sections: SECTIONS });
 }
 
@@ -28,6 +38,8 @@ export async function invite(ctx) {
   const name = clean(body.name, 120);
   const role = body.role === 'admin' ? 'admin' : 'staff';
   if (!isEmail(email)) return error(400, 'invalid', 'Enter a valid email.', { fields: { email: 'Enter a valid email.' } });
+  // Same answer as an existing account, so agency addresses can't be probed.
+  if (!ctx.user.super && superEmails(env).includes(email)) return error(409, 'exists', 'That person already has an account.');
   const existing = await env.DB.prepare('SELECT * FROM users WHERE email=?').bind(email).first();
   let user;
   if (existing) {
@@ -45,17 +57,36 @@ export async function invite(ctx) {
   const link = `${env.SITE_URL}/admin/#set=${token}`;
   const connected = !!(await resolveSecret(env, 'resend')).value;
   let sent = false;
-  if (connected) sent = (await sendEmail(env, inviteEmail(env, { name, link, inviter: ctx.user.name || ctx.user.email, to: email }), { kind: 'invite' })).ok;
+  if (connected) sent = (await sendEmail(env, inviteEmail(env, { name, link, inviter: inviterLabel(ctx), to: email }), { kind: 'invite' })).ok;
   await audit(ctx, 'invite', email, `${role}${sent ? '' : ' · link shown to admin'}`);
   // The link is only handed back when it could not be emailed.
   return json({ ok: true, user: shape(user), sent, link: sent ? undefined : link });
+}
+// Invites from an agency account are signed by the agency, not a person.
+const inviterLabel = (ctx) => (ctx.user.super ? agencyLabel(ctx.env) : (ctx.user.name || ctx.user.email));
+
+/** POST /api/team/:id/invite — send a fresh invite link to someone who has not set a password yet. */
+export async function resendInvite(ctx) {
+  const { env } = ctx;
+  const u = await loadTarget(ctx);
+  if (!u) return notFound();
+  if (u.pass_hash) return error(400, 'already_joined', 'That person already set a password. Use “Reset password” instead.');
+  if (!u.active) await env.DB.prepare('UPDATE users SET active=1 WHERE id=?').bind(u.id).run();
+  await env.DB.prepare("UPDATE set_tokens SET used_at=? WHERE user_id=? AND kind='invite' AND used_at IS NULL").bind(nowIso(), u.id).run();
+  const token = await issueSetToken(env, u.id, 'invite', 24 * 60);
+  const link = `${env.SITE_URL}/admin/#set=${token}`;
+  const connected = !!(await resolveSecret(env, 'resend')).value;
+  let sent = false;
+  if (connected) sent = (await sendEmail(env, inviteEmail(env, { name: u.name, link, inviter: inviterLabel(ctx), to: u.email }), { kind: 'invite' })).ok;
+  await audit(ctx, 'invite', u.email, `resend${sent ? '' : ' · link shown to admin'}`);
+  return json({ ok: true, sent, link: sent ? undefined : link });
 }
 
 export async function updateUser(ctx) {
   const { env } = ctx;
   const body = await readBody(ctx.request);
-  const u = await env.DB.prepare('SELECT * FROM users WHERE id=?').bind(ctx.params.id).first();
-  if (!u) return error(404, 'not_found', 'User not found.');
+  const u = await loadTarget(ctx);
+  if (!u) return notFound();
   const next = {
     name: body.name !== undefined ? clean(body.name, 120) : u.name,
     role: body.role !== undefined ? (body.role === 'admin' ? 'admin' : 'staff') : u.role,
@@ -76,8 +107,8 @@ export async function updateUser(ctx) {
 
 export async function resetUser(ctx) {
   const { env } = ctx;
-  const u = await env.DB.prepare('SELECT * FROM users WHERE id=? AND active=1').bind(ctx.params.id).first();
-  if (!u) return error(404, 'not_found', 'User not found.');
+  const u = await loadTarget(ctx, ' AND active=1');
+  if (!u) return notFound();
   const token = await issueSetToken(env, u.id, 'reset', 15);
   const link = `${env.SITE_URL}/admin/#set=${token}`;
   const connected = !!(await resolveSecret(env, 'resend')).value;
@@ -89,8 +120,8 @@ export async function resetUser(ctx) {
 
 export async function signoutUser(ctx) {
   const { env } = ctx;
-  const u = await env.DB.prepare('SELECT id, email FROM users WHERE id=?').bind(ctx.params.id).first();
-  if (!u) return error(404, 'not_found', 'User not found.');
+  const u = await loadTarget(ctx);
+  if (!u) return notFound();
   await env.DB.prepare('DELETE FROM sessions WHERE user_id=?').bind(u.id).run();
   await audit(ctx, 'user_signout', u.email, '');
   return json({ ok: true });

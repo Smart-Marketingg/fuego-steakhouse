@@ -1,6 +1,7 @@
 // Media library: site images in the public MEDIA bucket, served from MEDIA_URL.
 import { json, error, clean, newId, nowIso, readBody } from './util.js';
 import { audit } from './audit.js';
+import { actorMask } from './auth.js';
 
 const IMAGE_TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/svg+xml': 'svg', 'image/avif': 'avif' };
 const MAX_IMAGE = 15 * 1024 * 1024;
@@ -9,7 +10,8 @@ function publicUrl(env, key) { return `${(env.MEDIA_URL || '').replace(/\/$/, ''
 
 export async function listMedia(ctx) {
   const rows = (await ctx.env.DB.prepare('SELECT m.*, u.name AS uploaded_by_name FROM media m LEFT JOIN users u ON u.id=m.uploaded_by ORDER BY m.at DESC LIMIT 500').all()).results;
-  return json({ items: rows.map((r) => ({ key: r.key, name: r.name, type: r.type, size: r.size, url: publicUrl(ctx.env, r.key), uploaded_by: r.uploaded_by_name || '', at: r.at })), media_url: ctx.env.MEDIA_URL || '' });
+  const mask = await actorMask(ctx);
+  return json({ items: rows.map((r) => ({ key: r.key, name: r.name, type: r.type, size: r.size, url: publicUrl(ctx.env, r.key), uploaded_by: mask(r.uploaded_by, r.uploaded_by_name) || '', at: r.at })), media_url: ctx.env.MEDIA_URL || '' });
 }
 
 export async function uploadMedia(ctx) {

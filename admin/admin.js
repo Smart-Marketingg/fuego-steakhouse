@@ -1210,7 +1210,7 @@
         <td data-label="Role"><span class="pill role-${esc(u.role)}">${esc(u.role)}</span></td>
         <td data-label="Status"><span class="pill ${u.active ? 'ok' : ''}">${u.active ? 'Active' : 'Inactive'}</span></td>
         <td data-label="Last login" class="nowrap"><span class="cellv" title="${esc(fmtDate(u.last_login))}">${u.last_login ? esc(fmtRel(u.last_login)) : '<span class="dim">Never</span>'}</span></td>
-        <td class="cell-actions no-label"><button type="button" class="btn btn-ghost btn-xs" data-act="tmEdit" data-id="${esc(u.id)}">Edit</button><button type="button" class="btn btn-ghost btn-xs" data-act="tmReset" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Reset password</button><button type="button" class="btn btn-ghost btn-xs" data-act="tmSignout" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Sign out everywhere</button></td></tr>`).join('')}</tbody></table></div>`;
+        <td class="cell-actions no-label"><button type="button" class="btn btn-ghost btn-xs" data-act="tmEdit" data-id="${esc(u.id)}">Edit</button>${!u.has_password ? `<button type="button" class="btn btn-ghost btn-xs" data-act="tmResend" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Resend invite</button>` : `<button type="button" class="btn btn-ghost btn-xs" data-act="tmReset" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Reset password</button>`}<button type="button" class="btn btn-ghost btn-xs" data-act="tmSignout" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Sign out everywhere</button></td></tr>`).join('')}</tbody></table></div>`;
   }
   function userFormHtml(u) {
     u = u || { role: 'staff', perms: [], off: [], active: true };
@@ -1279,6 +1279,15 @@
         $('[data-save]', dlg).addEventListener('click', save);
         $('#userForm', dlg).addEventListener('submit', (e) => { e.preventDefault(); save(); });
       } });
+  };
+  ACTIONS.tmResend = async (b) => {
+    const ok = await confirmDialog({ title: 'Resend the invite?', text: `${b.dataset.email} will get a new invite link that works once and expires in 24 hours. Older invite links stop working.`, confirm: 'Resend invite' });
+    if (!ok) return;
+    try {
+      const r = await api('/api/team/' + encodeURIComponent(b.dataset.id) + '/invite', { method: 'POST' });
+      if (r.link) showLinkDialog('Invite link', 'Email is not connected, so the invite was not sent. Share this link with ' + b.dataset.email + ' — it lets them set a password.', r.link);
+      else toast('Invite resent to ' + b.dataset.email);
+    } catch (e) { toast(e.message || 'Could not resend the invite', 'err'); }
   };
   ACTIONS.tmReset = async (b) => {
     const ok = await confirmDialog({ title: 'Send a password reset?', text: `${b.dataset.email} will get a link that expires in 15 minutes.`, confirm: 'Send reset link' });
