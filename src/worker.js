@@ -70,6 +70,7 @@ api.patch('/api/team/:id', P('team.manage'), team.updateUser);
 api.post('/api/team/:id/invite', P('team.manage'), team.resendInvite);
 api.post('/api/team/:id/reset', P('team.manage'), team.resetUser);
 api.post('/api/team/:id/signout', P('team.manage'), team.signoutUser);
+api.delete('/api/team/:id', P('team.manage'), team.removeUser);
 api.get('/api/settings', P('settings.manage'), settings.getSettings);
 api.put('/api/settings', P('settings.manage'), settings.putSettings);
 api.post('/api/settings/test/:integration', P('settings.manage'), settings.testIntegration);

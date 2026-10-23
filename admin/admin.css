@@ -474,3 +474,4 @@ body.crm .tpl-foot .test input{ flex:1; min-width:0; }
   .crm-main{ padding:16px 12px 40px; }
   .card{ padding:14px; }
 }
+.btn-ghost.danger{ color:#ff7b6b; border-color:rgba(255,123,107,.35); }
