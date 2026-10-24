@@ -365,7 +365,7 @@ curl -I https://www.fuegosteaks.com/docs/api.md
 
 ## System controls
 
-Agency accounts (emails in `SUPER_ADMINS`) get a **System** section in the portal:
+Agency accounts (emails in `SUPER_ADMINS`) are the only accounts that can open the **Audit log** (the routes answer 404 to everyone else) and get a **System** section in the portal:
 
 - **Pause the CRM** (password + typed phrase): ends every non-agency session, refuses other sign-ins with a neutral message, stops writing website leads (they are still emailed to `NOTIFY_EMAILS` and held encrypted in `lead_queue`), and pauses auto-replies and the weekly summary. The list of agency accounts is frozen into `system_state` at that moment.
 - **Turn it back on**: only the same account that paused, with its password and phrase; 5 tries per 15 minutes; every attempt is audited.

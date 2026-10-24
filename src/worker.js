@@ -82,8 +82,9 @@ api.post('/api/system/pause', S(), system.pause);
 api.post('/api/system/resume', S(), system.resume);
 api.post('/api/system/signout-everyone', S(), system.signoutEveryone);
 api.post('/api/system/import-queue', S(), system.importQueue);
-api.get('/api/audit', P('audit.view'), audit.listAudit);
-api.get('/api/audit/export.csv', P('audit.view'), audit.exportAudit);
+// Audit log is agency-only (404 for everyone else), regardless of role or extra permissions.
+api.get('/api/audit', S(), audit.listAudit);
+api.get('/api/audit/export.csv', S(), audit.exportAudit);
 
 // Only the root alias lives here; every legacy slug redirect is declared once in `_redirects`,
 // which the assets binding applies. (#/ links are handled client-side in lead.js.)

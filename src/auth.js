@@ -272,7 +272,8 @@ export async function me(ctx) {
     user: { ...publicUser(user), ...(user.super ? { super: true } : {}) },
     ...(user.super ? { system: { off: state.off, at: state.at || null, mine: state.off && state.by === user.id } } : {}),
     permissions: permissionsFor(user),
-    sections: [...sectionsFor(user), ...(user.super ? ['system'] : [])],
+    // Audit log and System are agency-only sections.
+    sections: [...sectionsFor(user).filter((s) => s !== 'audit'), ...(user.super ? ['audit', 'system'] : [])],
     roles: Object.fromEntries(Object.entries(ROLES).map(([k, v]) => [k, { label: v.label, perms: v.perms }])),
     all_permissions: PERMISSIONS,
     all_sections: SECTIONS,
