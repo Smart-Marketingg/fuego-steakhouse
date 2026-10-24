@@ -1188,8 +1188,8 @@
      VIEW: TEAM
      ============================================================ */
   const TV = { items: [] };
-  const STAFF_EXTRA_PERMS = ['leads.delete', 'leads.export', 'automations.manage', 'media.manage', 'team.manage', 'audit.view'];
-  const PERM_LABELS = { 'leads.delete': 'Delete leads', 'leads.export': 'Export CSV', 'automations.manage': 'Manage automations', 'media.manage': 'Manage media', 'team.manage': 'Manage team (invite, edit, remove)', 'audit.view': 'View audit log' };
+  const STAFF_EXTRA_PERMS = ['leads.delete', 'leads.export', 'automations.manage', 'media.manage', 'team.manage'];
+  const PERM_LABELS = { 'leads.delete': 'Delete leads', 'leads.export': 'Export CSV', 'automations.manage': 'Manage automations', 'media.manage': 'Manage media', 'team.manage': 'Manage team (invite, edit, remove)' };
   VIEWS.team = {
     render(root, q, token) {
       root.innerHTML = `<div class="page-head"><div><p class="eyebrow"><span class="hair"></span>Admin</p><h1>Team</h1></div>
@@ -1228,7 +1228,7 @@
         ${u.id ? `<div class="field"><span class="field-label-text sr-only">Status</span><label class="switch" for="ufActive"><input type="checkbox" id="ufActive" ${u.active ? 'checked' : ''}><span class="track"></span><span>Active account</span></label></div>` : ''}
       </div>
       <fieldset class="field" id="ufPermsWrap" ${u.role === 'admin' ? 'hidden' : ''}><legend class="sr-only">Extra permissions</legend><span class="field-label-text">Extra permissions (staff)</span><div class="checks">${STAFF_EXTRA_PERMS.map((p) => `<label class="check"><input type="checkbox" name="perm" value="${p}" ${perms.includes(p) ? 'checked' : ''}> ${esc(PERM_LABELS[p] || p)}</label>`).join('')}</div></fieldset>
-      <fieldset class="field"><legend class="sr-only">Hidden sections</legend><span class="field-label-text">Hide sections</span><div class="checks">${Object.keys(SECTIONS).map((s) => `<label class="check dim"><input type="checkbox" name="off" value="${s}" ${off.includes(s) ? 'checked' : ''}> ${esc(SECTIONS[s].label)}</label>`).join('')}</div></fieldset>
+      <fieldset class="field"><legend class="sr-only">Hidden sections</legend><span class="field-label-text">Hide sections</span><div class="checks">${Object.keys(SECTIONS).filter((s) => s !== 'audit' && s !== 'system').map((s) => `<label class="check dim"><input type="checkbox" name="off" value="${s}" ${off.includes(s) ? 'checked' : ''}> ${esc(SECTIONS[s].label)}</label>`).join('')}</div></fieldset>
       <p class="form-msg err" id="ufMsg" role="alert"></p>
     </form>`;
   }
