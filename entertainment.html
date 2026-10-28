@@ -49,12 +49,12 @@
   .cal-hint svg{ width:15px; height:15px; color:var(--gold); flex:none; }
 
   /* grid */
-  .cal-dow{ display:grid; grid-template-columns:repeat(7,1fr); gap:1px; margin-bottom:1px; }
+  .cal-dow{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:1px; margin-bottom:1px; }
   .cal-dow span{ text-align:center; font-size:11px; font-weight:800; letter-spacing:.18em; text-transform:uppercase;
     color:var(--gold); padding:14px 0; background:var(--bg-deep); }
-  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); grid-auto-rows:minmax(120px,auto); gap:1px;
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); grid-auto-rows:minmax(120px,auto); gap:1px;
     background:var(--line-soft); border:1px solid var(--line-soft); }
-  .cal-cell{ background:var(--bg-soft); padding:9px 9px 8px; position:relative; cursor:pointer; transition:background .25s; display:flex; flex-direction:column; gap:6px; min-height:0; }
+  .cal-cell{ background:var(--bg-soft); padding:9px 9px 8px; position:relative; cursor:pointer; transition:background .25s; display:flex; flex-direction:column; gap:6px; min-height:0; min-width:0; }
   .cal-cell:hover{ background:var(--bg-card); }
   .cal-cell.other-month{ background:var(--bg-deep); }
   .cal-cell.other-month .cal-num{ color:var(--text-mute); opacity:.5; }
@@ -157,7 +157,8 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
       <a href="/contact">Contact</a>
     </nav>
     <div class="header-cta">
-      <a class="btn btn-ghost" href="/">Reserve a Table</a>
+      <a class="btn btn-ghost" href="/#reserve">Reserve a Table</a>
+      <a class="btn btn-ghost" href="tel:+12014556055">Call Now</a>
       <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav"><span></span></button>
     </div>
   </div>
@@ -173,7 +174,8 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
   <a href="/large-events" data-mclose>Private Events</a>
   <a href="/gallery" data-mclose>Gallery</a>
   <a href="/contact" data-mclose>Contact</a>
-  <a class="btn btn-gold" href="/" data-mclose>Reserve a Table</a>
+  <a class="btn btn-gold" href="/#reserve" data-mclose>Reserve a Table</a>
+  <a class="btn btn-ghost" href="tel:+12014556055" data-mclose>Call Now</a>
 </nav>
 
 <main class="cal-page">

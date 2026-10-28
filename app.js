@@ -167,18 +167,13 @@
       var tt = document.getElementById('modalTitle'); if (tt) tt.textContent = 'Book Your Event';
       var sb = document.getElementById('modalSub'); if (sb) sb.textContent = 'Tell us about your celebration and our events team will reach out to craft it with you.';
     } else {
-      /* Make a Reservation: choice step first — Reserve Online or Call Now */
+      /* Make a Reservation: open the OpenTable widget directly */
       detach(form);
       detach(success);
       detach(otWrap); otWrap = null;
       if (modalEl) modalEl.classList.remove('modal-form');
       if (modalTop) modalTop.hidden = true;
-      if (!choiceWrap || !choiceWrap.parentNode) {
-        detach(choiceWrap);
-        choiceWrap = buildChoice();
-        if (modalEl) modalEl.appendChild(choiceWrap);
-        choiceWrap.querySelector('#rcOnline').addEventListener('click', showOtWidget);
-      }
+      showOtWidget();
     }
   }
   function closeModal() {
@@ -193,8 +188,8 @@
     var bar = document.createElement('div');
     bar.id = 'mobileBar';
     bar.className = 'mobile-bar';
-    bar.innerHTML = '<button class="btn btn-gold" data-reserve>Reserve a Table</button>' +
-      '<a class="btn btn-ghost" href="large-events.html">Private Events</a>';
+    bar.innerHTML = (document.getElementById('modalScrim') ? '<button class="btn btn-gold" data-reserve>Reserve a Table</button>' : '<a class="btn btn-gold" href="index.html#reserve">Reserve a Table</a>') +
+      '<a class="btn btn-ghost" href="tel:+12014556055">Call Now</a>';
     document.body.appendChild(bar);
     var footer = document.querySelector('.footer');
     if (footer) {
@@ -220,6 +215,7 @@
     b.addEventListener('click', function (e) { e.preventDefault(); openModal(b.getAttribute('data-mode')); });
   });
   document.getElementById('modalClose').addEventListener('click', closeModal);
+  if (location.hash === '#reserve') { openModal(''); history.replaceState(null, '', location.pathname + location.search); }
   var successDoneBtn = document.getElementById('successDone');
   if (successDoneBtn) successDoneBtn.addEventListener('click', closeModal);
   scrim.addEventListener('click', function (e) { if (e.target === scrim) closeModal(); });
