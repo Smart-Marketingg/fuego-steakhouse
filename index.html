@@ -148,6 +148,8 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
     var romeroOct23Ends = Date.parse('2026-10-24T04:00:00Z');
     var latin24Ends = Date.parse('2026-10-25T04:00:00Z');
     var halloweenEnds = Date.parse('2026-11-01T04:00:00Z');
+    var romeroNov6Ends = Date.parse('2026-11-07T05:00:00Z');
+    var queloqueEnds = Date.parse('2026-11-09T05:00:00Z');
     var IGNITE_URL = 'https://www.carsandsocial.com/event-details/ignite/form';
     var img = document.getElementById('promoImg');
     var link = document.getElementById('promoLink');
@@ -247,6 +249,16 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
         link.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=2026-10-31T21:00&partySize=2';
       }
       open();
+    } else if (now < romeroNov6Ends) {
+      img.src = 'assets/promo-romero-nov6.png';
+      img.alt = 'Romero Flamenco Progressive Trio with Paloma de Vega and Cristina Candela — Friday, November 6, 2026 at 7:30 PM. Fuego Steakhouse & Bar, North Bergen, NJ. (201) 455-6055.';
+      link.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=2026-11-06T19:30&partySize=2';
+      open();
+    } else if (now < queloqueEnds) {
+      img.src = 'assets/promo-queloque-brunch-nov8.png';
+      img.alt = 'Qué Lo Qué Brunch — Sunday, November 8, 12:00 PM to 4:00 PM. $59 per person, includes unlimited buffet, welcome drink, live entertainment and surprise hour. Reserve your table at fuegosteaks.com.';
+      link.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=2026-11-08T12:00&partySize=2';
+      open();
     } else {
       /* Evergreen: Ladies' Night — every Thursday 7–11 PM. Prefills the next Thursday at 7 PM. */
       var d = new Date();
@@ -299,6 +311,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
 
     <div class="header-cta">
       <button class="btn btn-ghost" data-reserve>Reserve a Table</button>
+      <a class="btn btn-ghost" href="tel:+12014556055">Call Now</a>
       <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav"><span></span></button>
     </div>
   </div>
@@ -317,6 +330,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
   <a href="gallery.html" data-mclose>Gallery</a>
   <a href="contact.html" data-mclose>Contact</a>
   <button class="btn btn-gold" data-reserve data-mclose>Reserve a Table</button>
+  <a class="btn btn-ghost" href="tel:+12014556055" data-mclose>Call Now</a>
 </nav>
 
 <main id="top">
@@ -335,6 +349,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
       <p class="lead">Premium steaks, handcrafted cocktails, unforgettable entertainment, and private events in North Bergen, NJ.</p>
       <div class="btn-row">
         <button class="btn btn-gold" data-reserve>Reserve a Table</button>
+        <a class="btn btn-ghost" href="tel:+12014556055">Call Now</a>
         <a class="btn btn-ghost" href="entertainment.html">View Events</a>
       </div>
     </div>
@@ -456,6 +471,12 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
           </a>
           <a class="upcoming-flyer" href="https://www.opentable.com/restref/client/?rid=1473520&amp;dateTime=2026-10-31T22%3A00&amp;partySize=2" target="_blank" rel="noopener" data-ends="2026-11-01T04:00:00Z">
             <img src="assets/promo-halloween-afterdark-oct31.jpg" alt="Halloween After Dark — Saturday, October 31, 10 PM to 1 AM. $75 per guest. Costume contest, DJ, photo booth, late-night bites and one welcome drink. Reserve your table." loading="lazy">
+          </a>
+          <a class="upcoming-flyer" href="https://www.opentable.com/restref/client/?rid=1473520&amp;dateTime=2026-11-06T19%3A30&amp;partySize=2" target="_blank" rel="noopener" data-ends="2026-11-07T05:00:00Z">
+            <img src="assets/promo-romero-nov6.png" alt="Romero Flamenco Progressive Trio with Paloma de Vega and Cristina Candela — Friday, November 6, 2026 at 7:30 PM. Fuego Steakhouse &amp; Bar, North Bergen, NJ. (201) 455-6055." loading="lazy">
+          </a>
+          <a class="upcoming-flyer" href="https://www.opentable.com/restref/client/?rid=1473520&amp;dateTime=2026-11-08T12%3A00&amp;partySize=2" target="_blank" rel="noopener" data-ends="2026-11-09T05:00:00Z">
+            <img src="assets/promo-queloque-brunch-nov8.png" alt="Qué Lo Qué Brunch — Sunday, November 8, 12:00 PM to 4:00 PM. $59 per person, includes unlimited buffet, welcome drink, live entertainment and surprise hour. Reserve your table at fuegosteaks.com." loading="lazy">
           </a>
           <a class="upcoming-flyer" id="ladiesNightFlyer" href="https://www.opentable.com/restref/client/?rid=1473520" target="_blank" rel="noopener">
             <img src="assets/promo-ladies-night.jpg" alt="Fuego Ladies&#8217; Night — every Thursday, 7 PM to 11 PM. Ladies receive their first cocktail complimentary. Live DJ — DJ OZ. So grab your girls and make Thursday your night at Fuego. (201) 455-6055, 921 John F. Kennedy Blvd, North Bergen, NJ." loading="lazy">
@@ -614,6 +635,7 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
       </div>
       <div class="btn-row">
         <button class="btn btn-gold" data-reserve>Reserve a Table</button>
+        <a class="btn btn-ghost" href="tel:+12014556055">Call Now</a>
         <button class="btn btn-ghost" data-reserve data-mode="event">Book Private Event</button>
       </div>
     </div>
