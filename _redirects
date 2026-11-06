@@ -14,6 +14,11 @@
 /reviews-gallery       /gallery             301
 /gift-cards-rewards    /gift-cards          301
 
+# --- Brunch menu retired (Nov 2026): weekends are now Breakfast + Lunch Specials + Main Menu ---
+/brunch                    /menus           301
+/brunch-menu               /menus           301
+/assets/brunch-menu.pdf    /menus           301
+
 # --- Reservations: no standalone page; handled via booking on the home page ---
 /reservations          /                    301
 
