@@ -149,6 +149,17 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
     var halloweenEnds = Date.parse('2026-11-01T04:00:00Z');
     var romeroNov6Ends = Date.parse('2026-11-07T05:00:00Z');
     var queloqueEnds = Date.parse('2026-11-09T05:00:00Z');
+    var friendsgivingEnds = Date.parse('2026-11-26T05:00:00Z');
+    /* Friendsgiving runs Nov 23–25: prefill today if it's one of those days, otherwise Nov 23. */
+    function friendsgivingDay() {
+      var t = new Date(), ymd = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+      return (ymd >= '2026-11-23' && ymd <= '2026-11-25') ? ymd : '2026-11-23';
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      var fgCard = document.querySelector('.upcoming-flyer img[src="assets/promo-friendsgiving-nov23.png"]');
+      if (fgCard) fgCard.parentNode.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=' + friendsgivingDay() + 'T19:00&partySize=2';
+    });
+    var thanksgivingEnds = Date.parse('2026-11-27T05:00:00Z');
     var IGNITE_URL = 'https://www.carsandsocial.com/event-details/ignite/form';
     var img = document.getElementById('promoImg');
     var link = document.getElementById('promoLink');
@@ -257,6 +268,16 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
       img.src = 'assets/promo-queloque-brunch-nov8.png';
       img.alt = 'Qué Lo Qué Brunch — Sunday, November 8, 12:00 PM to 4:00 PM. $59 per person, includes unlimited buffet, welcome drink, live entertainment and surprise hour. Reserve your table at fuegosteaks.com.';
       link.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=2026-11-08T12:00&partySize=2';
+      open();
+    } else if (now < friendsgivingEnds) {
+      img.src = 'assets/promo-friendsgiving-nov23.png';
+      img.alt = 'Friendsgiving Feast — Happy Hour all day, Monday November 23, Tuesday November 24 and Wednesday November 25. RSVP to reserve your table. Fuego Steakhouse & Bar, 921 JFK Blvd, North Bergen, NJ. (201) 455-6055.';
+      link.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=' + friendsgivingDay() + 'T19:00&partySize=2';
+      open();
+    } else if (now < thanksgivingEnds) {
+      img.src = 'assets/promo-thanksgiving-nov26.png';
+      img.alt = 'Celebrate Thanksgiving at Fuego — Thursday, November 26. Full menu available. Reserve your table. Fuego Steakhouse & Bar, 921 JFK Blvd, North Bergen, NJ. (201) 455-6055.';
+      link.href = 'https://www.opentable.com/restref/client/?rid=1473520&dateTime=2026-11-26T17:00&partySize=2';
       open();
     } else {
       /* Evergreen: Ladies' Night — every Thursday 7–11 PM. Prefills the next Thursday at 7 PM. */
@@ -476,6 +497,12 @@ src="https://www.facebook.com/tr?id=603324592033992&ev=PageView&noscript=1"/></n
           </a>
           <a class="upcoming-flyer" href="https://www.opentable.com/restref/client/?rid=1473520&amp;dateTime=2026-11-08T12%3A00&amp;partySize=2" target="_blank" rel="noopener" data-ends="2026-11-09T05:00:00Z">
             <img src="assets/promo-queloque-brunch-nov8.png" alt="Qué Lo Qué Brunch — Sunday, November 8, 12:00 PM to 4:00 PM. $59 per person, includes unlimited buffet, welcome drink, live entertainment and surprise hour. Reserve your table at fuegosteaks.com." loading="lazy">
+          </a>
+          <a class="upcoming-flyer" href="https://www.opentable.com/restref/client/?rid=1473520&amp;dateTime=2026-11-23T19:00&amp;partySize=2" target="_blank" rel="noopener" data-ends="2026-11-26T05:00:00Z">
+            <img src="assets/promo-friendsgiving-nov23.png" alt="Friendsgiving Feast — Happy Hour all day, Monday November 23, Tuesday November 24 and Wednesday November 25. RSVP to reserve your table. Fuego Steakhouse & Bar, 921 JFK Blvd, North Bergen, NJ. (201) 455-6055." loading="lazy">
+          </a>
+          <a class="upcoming-flyer" href="https://www.opentable.com/restref/client/?rid=1473520&amp;dateTime=2026-11-26T17:00&amp;partySize=2" target="_blank" rel="noopener" data-ends="2026-11-27T05:00:00Z">
+            <img src="assets/promo-thanksgiving-nov26.png" alt="Celebrate Thanksgiving at Fuego — Thursday, November 26. Full menu available. Reserve your table. Fuego Steakhouse & Bar, 921 JFK Blvd, North Bergen, NJ. (201) 455-6055." loading="lazy">
           </a>
           <a class="upcoming-flyer" id="ladiesNightFlyer" href="https://www.opentable.com/restref/client/?rid=1473520" target="_blank" rel="noopener">
             <img src="assets/promo-ladies-night.jpg" alt="Fuego Ladies&#8217; Night — every Thursday, 7 PM to 11 PM. Ladies receive their first cocktail complimentary. Live DJ — DJ OZ. So grab your girls and make Thursday your night at Fuego. (201) 455-6055, 921 John F. Kennedy Blvd, North Bergen, NJ." loading="lazy">
