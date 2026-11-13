@@ -26,7 +26,10 @@
     '2026-11-14': [{ title: 'DJ Sabbat', time: '9:30 PM – 1:30 AM' }],
     '2026-11-20': [{ title: 'Flamenco Nights with Romero', time: '7:30 PM' }],
     '2026-11-21': [{ title: 'DJ Alex Pro', time: '9:30 PM – 1:30 AM' }],
-    '2026-11-25': [{ title: 'Thanksgiving Eve · DJ Oz & DJ Alex Pro', time: '' }],
+    '2026-11-25': [{ title: 'Friendsgiving Feast · Happy Hour All Day', time: 'All day' }, { title: 'Thanksgiving Eve · DJ Oz & DJ Alex Pro', time: '' }],
+    '2026-11-23': [{ title: 'Friendsgiving Feast · Happy Hour All Day', time: 'All day' }],
+    '2026-11-24': [{ title: 'Friendsgiving Feast · Happy Hour All Day', time: 'All day' }],
+    '2026-11-26': [{ title: 'Thanksgiving · Full Menu', time: 'All day' }],
     '2026-11-27': [{ title: 'Latin Jazz · Oriente López Trio', time: '7:00 PM – 9:30 PM' }],
     '2026-11-28': [{ title: 'DJ Alex Pro', time: '9:30 PM – 1:30 AM' }]
   };
