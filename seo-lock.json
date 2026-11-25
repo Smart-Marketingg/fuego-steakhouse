@@ -1,0 +1,433 @@
+{
+ "_about": "SEO lock. Cloudflare refuses to deploy if the site no longer matches this file. Do not edit by hand: run \"node tools/seo-guard.mjs update\" after an intended SEO change and commit the result. See SEO-GUARD.md.",
+ "custom": {
+  "siteDir": ".",
+  "ignore": [
+   "Fuego Steakhouse (Canva).html",
+   "site/**"
+  ],
+  "mustContain": [
+   {
+    "file": "src/worker.js",
+    "text": "siteHost === 'www.' + url.host",
+    "why": "fuegosteaks.com -> www redirect"
+   },
+   {
+    "file": "src/worker.js",
+    "text": "LEGACY[url.pathname]",
+    "why": "old URL redirects"
+   },
+   {
+    "file": "wrangler.jsonc",
+    "text": "\"run_worker_first\": true",
+    "why": "the Worker must run before static files"
+   }
+  ],
+  "mustExist": []
+ },
+ "pages": {
+  "404.html": {
+   "lang": "en",
+   "title": "Page Not Found | Fuego Steakhouse &amp; Bar",
+   "description": "",
+   "robots": "noindex",
+   "canonical": "",
+   "og": {},
+   "verify": {},
+   "schema": [],
+   "tags": [],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "assets/fuego-logo.png": "Fuego Steakhouse & Bar"
+   }
+  },
+  "contact.html": {
+   "lang": "en",
+   "title": "Contact | Fuego Steakhouse &amp; Bar — North Bergen, NJ",
+   "description": "Get in touch with Fuego Steakhouse & Bar in North Bergen, NJ. Find our address, phone, email, hours, and send us a message.",
+   "robots": "",
+   "canonical": "https://www.fuegosteaks.com/contact",
+   "og": {
+    "og:title": "Contact | Fuego Steakhouse & Bar"
+   },
+   "verify": {
+    "facebook-domain-verification": "omjopdp30jx8jbl03cjqd38315u0s4"
+   },
+   "schema": [
+    {
+     "types": "ContactPage",
+     "hash": "cf6a018a6821"
+    }
+   ],
+   "tags": [
+    "G-9W4G1DC2TT",
+    "MetaPixel-603324592033992"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "assets/fuego-logo.png": "Fuego Steakhouse & Bar"
+   }
+  },
+  "entertainment.html": {
+   "lang": "en",
+   "title": "Entertainment &amp; Events Calendar | Fuego Steakhouse &amp; Bar",
+   "description": "See what's happening at Fuego Steakhouse & Bar in North Bergen, NJ. Live music, DJ nights, social nights and special events — browse our full events calendar.",
+   "robots": "noindex, nofollow",
+   "canonical": "https://www.fuegosteaks.com/entertainment",
+   "og": {},
+   "verify": {
+    "facebook-domain-verification": "omjopdp30jx8jbl03cjqd38315u0s4"
+   },
+   "schema": [],
+   "tags": [
+    "G-9W4G1DC2TT",
+    "MetaPixel-603324592033992"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "assets/fuego-logo.png": "Fuego Steakhouse & Bar"
+   }
+  },
+  "gallery.html": {
+   "lang": "en",
+   "title": "Gallery | Fuego Steakhouse &amp; Bar",
+   "description": "Step inside Fuego Steakhouse & Bar in North Bergen, NJ — a gallery of unforgettable nights, live entertainment, private celebrations, craft cocktails and fine dining.",
+   "robots": "",
+   "canonical": "",
+   "og": {
+    "og:title": "Gallery | Fuego Steakhouse & Bar"
+   },
+   "verify": {
+    "facebook-domain-verification": "omjopdp30jx8jbl03cjqd38315u0s4"
+   },
+   "schema": [
+    {
+     "types": "ImageGallery",
+     "hash": "da8630592eb9"
+    }
+   ],
+   "tags": [
+    "G-9W4G1DC2TT",
+    "MetaPixel-603324592033992"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "assets/fuego-logo.png": "Fuego Steakhouse & Bar",
+    "assets/gallery/amb01.jpg": "The Fuego bar aglow with warm light and signature fire branding",
+    "assets/gallery/amb02.jpg": "The main dining room set and glowing under gold light",
+    "assets/gallery/amb03.jpg": "The floral entrance and wine display at Fuego Steakhouse & Bar",
+    "assets/gallery/amb04.jpg": "Guests celebrating with roses at brunch",
+    "assets/gallery/amb05.jpg": "Friends sharing a rose and a laugh at the bar",
+    "assets/gallery/amb06.jpg": "A table of guests applauding during a celebration",
+    "assets/gallery/amb07.jpg": "Guests cheering beneath the floral mirror wall",
+    "assets/gallery/amb08.jpg": "A full dining room celebrating together",
+    "assets/gallery/amb09.jpg": "Guests dancing on the floor at Fuego",
+    "assets/gallery/amb11.jpg": "The private dining room crowned with red cherry blossoms and crystal chandeliers",
+    "assets/gallery/amb12.jpg": "Fuego’s dining room with stone accents and warm golden ceilings",
+    "assets/gallery/amb13.jpg": "The wood-paneled bar island under glowing amber light",
+    "assets/gallery/amb14.jpg": "Leather booths beneath cascading greenery and a gold chandelier",
+    "assets/gallery/amb15.jpg": "The dining room stretching toward the fireside bar",
+    "assets/gallery/amb16.jpg": "Moody dining corner with cognac leather chairs and table lamps",
+    "assets/gallery/amb17.jpg": "An intimate mirrored table set beneath winter greenery",
+    "assets/gallery/amb18.jpg": "Crystal chandelier framed by holiday garland",
+    "assets/gallery/amb19.jpg": "The back bar aglow with orchids and warm light",
+    "assets/gallery/amb20.jpg": "Bottles lined along the bar over dancing flames",
+    "assets/gallery/amb21.jpg": "White-linen tables set in the dim glow of the dining room",
+    "assets/gallery/amb22.jpg": "Bar seating in front of the roaring fireplace displays",
+    "assets/gallery/amb23.jpg": "A booth wrapped in red blossoms, set for dinner",
+    "assets/gallery/amb24.jpg": "Our bartender straining a golden cocktail over open flames",
+    "assets/gallery/cctl01.jpg": "A smoking cucumber cocktail served in a seashell glass",
+    "assets/gallery/cctl02.jpg": "A citrus coupe cocktail with a chili-salt rim among tropical leaves",
+    "assets/gallery/cctl03.jpg": "A frozen mango margarita with a chili rim and dry-ice smoke",
+    "assets/gallery/cctl05.jpg": "A golden margarita with a chili rim and dry-ice smoke",
+    "assets/gallery/cctl09.jpg": "An amber whiskey sour topped with a dried orange wheel",
+    "assets/gallery/cctl10.jpg": "Overhead view of a foamy cocktail crowned with a dried orange slice",
+    "assets/gallery/food01.jpg": "Smoked jumbo shrimp cocktail served over dry-ice fog with cocktail sauce",
+    "assets/gallery/food06.jpg": "Fresh fish ceviche with red onion, sweet potato and toasted corn",
+    "assets/gallery/food11.jpg": "Chicken &amp; waffles with a dusting of powdered sugar and maple syrup",
+    "assets/gallery/food12.jpg": "Crab cake brunch plate with arugula and breakfast potatoes",
+    "assets/gallery/food13.jpg": "Stuffed French toast topped with fresh fruit and syrup",
+    "assets/gallery/food14.jpg": "Fluffy omelette with grilled sausage and breakfast potatoes",
+    "assets/gallery/food15.jpg": "Sunny-side eggs with crispy bacon and home potatoes",
+    "assets/gallery/food16.jpg": "Eggs Benedict with hollandaise and breakfast potatoes",
+    "assets/gallery/food17.jpg": "Eggs Benedict served with sautéed kale and potatoes",
+    "assets/gallery/food18.jpg": "Chef-plated appetizer finished with microgreens",
+    "assets/gallery/food19.jpg": "Classic French onion soup baked with melted cheese",
+    "assets/gallery/food20.jpg": "Coconut shrimp platter with dipping sauce",
+    "assets/gallery/food21.jpg": "Signature burger with lettuce, tomato and a basket of fries",
+    "assets/gallery/food22.jpg": "Churrasco skirt steak with peppers, onions and white rice",
+    "assets/gallery/food23.jpg": "Chicken francese with grilled asparagus in lemon butter sauce",
+    "assets/gallery/food24.jpg": "Baked chicken parmesan bubbling with melted cheese",
+    "assets/gallery/food25.jpg": "Golden fried calamari with marinara and lemon",
+    "assets/gallery/food26.jpg": "Bacon-wrapped filet mignon finished with rosemary",
+    "assets/gallery/food27.jpg": "Grilled asparagus side with sea salt",
+    "assets/gallery/food28.jpg": "Shrimp mac &amp; cheese with toasted garlic bread",
+    "assets/gallery/food29.jpg": "Grilled steak medallion with rice and morcilla",
+    "assets/gallery/food31.jpg": "Grilled steak served with crispy tostones and chimichurri",
+    "assets/gallery/food32.jpg": "Golden tostones in an oval serving dish",
+    "assets/gallery/food33.jpg": "Croquetas served warm in a cast dish",
+    "assets/gallery/food35.jpg": "Churrasco steak with crispy potatoes and arugula",
+    "assets/gallery/food36.jpg": "Braised short rib with sweet plantains and fresh greens",
+    "assets/gallery/food37.jpg": "Grilled steak with herb butter, served tableside",
+    "assets/gallery/food38.jpg": "Seared skirt steak with chimichurri and microgreens",
+    "assets/gallery/g01.jpg": "Guests posing together at a Fuego Steakhouse & Bar event",
+    "assets/gallery/g02.jpg": "Friends toasting cocktails at the bar",
+    "assets/gallery/g03.jpg": "The dining room glowing on a busy evening",
+    "assets/gallery/g04.jpg": "Live music night on the Fuego stage",
+    "assets/gallery/g05.jpg": "Couple celebrating over dinner",
+    "assets/gallery/g11.jpg": "The bar lit warm and gold after dark",
+    "assets/gallery/g12.jpg": "Guests dressed up for a special occasion",
+    "assets/gallery/g15.jpg": "A lively night in the main dining room",
+    "assets/gallery/g16.jpg": "Friends gathered for drinks and bites",
+    "assets/gallery/g22.jpg": "A lively night on the floor at Fuego"
+   }
+  },
+  "gift-cards.html": {
+   "lang": "en",
+   "title": "Gift Cards &amp; Rewards | Fuego Steakhouse &amp; Bar — North Bergen, NJ",
+   "description": "Give the gift of luxury dining at Fuego Steakhouse & Bar in North Bergen, NJ. Purchase eGift cards online and join Fuego Rewards for exclusive perks, offers, and points every time you dine.",
+   "robots": "",
+   "canonical": "",
+   "og": {
+    "og:title": "Gift Cards & Rewards | Fuego Steakhouse & Bar",
+    "og:description": "Give the gift of luxury dining and enjoy exclusive rewards and special perks at Fuego Steakhouse & Bar."
+   },
+   "verify": {
+    "facebook-domain-verification": "omjopdp30jx8jbl03cjqd38315u0s4"
+   },
+   "schema": [
+    {
+     "types": "WebPage",
+     "hash": "583261409d9b"
+    }
+   ],
+   "tags": [
+    "G-9W4G1DC2TT",
+    "MetaPixel-603324592033992"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "assets/final-cta.jpg": "Elegantly set dining table at Fuego Steakhouse & Bar",
+    "assets/fuego-logo.png": "Fuego Steakhouse & Bar",
+    "assets/gc-bar.jpg": "Lively bar and dining scene at Fuego Steakhouse & Bar",
+    "assets/gc-celebrate.jpg": "Guest celebrating at Fuego Steakhouse & Bar",
+    "assets/gc-couple.jpg": "Guests dressed up for an event at Fuego Steakhouse & Bar",
+    "assets/gc-group.jpg": "Group celebrating at Fuego Steakhouse & Bar"
+   }
+  },
+  "index.html": {
+   "lang": "en",
+   "title": "Fuego Steakhouse &amp; Bar | Steaks, Cocktails, Weekend Breakfast &amp; Private Events in North Bergen, NJ",
+   "description": "Fuego Steakhouse &amp; Bar in North Bergen, NJ offers premium steaks, handcrafted cocktails, weekend breakfast, daily lunch specials, live entertainment, and private event experiences. Reserve your table today.",
+   "robots": "",
+   "canonical": "",
+   "og": {
+    "og:title": "Fuego Steakhouse &amp; Bar | North Bergen, NJ",
+    "og:description": "More than a steakhouse. A destination forged by fire. Premium steaks, craft cocktails, live entertainment &amp; private events in North Bergen, NJ."
+   },
+   "verify": {
+    "facebook-domain-verification": "omjopdp30jx8jbl03cjqd38315u0s4"
+   },
+   "schema": [
+    {
+     "types": "Restaurant",
+     "hash": "6ce3ad6102e6"
+    }
+   ],
+   "tags": [
+    "G-9W4G1DC2TT",
+    "MetaPixel-603324592033992"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "assets/final-cta.jpg": "Fuego Steakhouse & Bar dining room with red florals and gold chandeliers, set for the evening",
+    "assets/fuego-logo.png": "Fuego Steakhouse & Bar",
+    "assets/gallery/food11.jpg": "Fuego chicken &amp; waffles dusted with powdered sugar and drizzled with maple syrup",
+    "assets/gallery/food22.jpg": "Churrasco skirt steak with peppers, onions and white rice",
+    "assets/gallery/g04.jpg": "Guests gathered at Fuego's main bar beneath the backlit spirit shelves and gallery screens",
+    "assets/photos/DSC00011.jpg": "Cucumber cooler over ice with a veil of dry-ice mist",
+    "assets/photos/DSC00067.jpg": "Cucumber highball in a shell glass on a coastal serving tray",
+    "assets/photos/DSC00090.jpg": "Bittersweet spritz with a dried orange wheel among trailing greenery",
+    "assets/photos/DSC00096.jpg": "Smoked citrus cocktail served under a glass cloche",
+    "assets/photos/DSC00114.jpg": "Lychee martini with a silken foam top in a gold coupe",
+    "assets/photos/DSC00126.jpg": "Signature cocktail in a sculpted ceramic tiki mug",
+    "assets/photos/DSC00166.jpg": "Dried-orange whiskey sour poured tableside from a vintage shaker",
+    "assets/photos/DSC00180.jpg": "Lavender gin sour finished with fresh lavender sprigs",
+    "assets/photos/brunch-pancakes.jpg": "A tall stack of Fuego pancakes topped with fresh fruit and a maple syrup pour",
+    "assets/photos/entertainment-night.jpg": "Our bartender straining a golden cocktail over the fire display during an entertainment night at Fuego Steakhouse & Bar",
+    "assets/promo-brunch.jpg": "Sexy Brunch — Sunday, August 16, 2026. Buffet style, live dancers, $39 per guest, unlimited mimosas +15. 11 AM to 4 PM at Fuego Steakhouse &amp; Bar.",
+    "assets/promo-friendsgiving-nov23.png": "Friendsgiving Feast — Happy Hour all day, Monday November 23, Tuesday November 24 and Wednesday November 25. RSVP to reserve your table. Fuego Steakhouse & Bar, 921 JFK Blvd, North Bergen, NJ. (201) 455-6055.",
+    "assets/promo-halloween-afterdark-oct31.jpg": "Halloween After Dark — Saturday, October 31, 10 PM to 1 AM. $75 per guest. Costume contest, DJ, photo booth, late-night bites and one welcome drink. Reserve your table.",
+    "assets/promo-halloween-oct31.png": "Halloween Latin Saturdays — salsa, bachata, merengue, Latin house. Music by DJ AlexPro. Saturday, October 31. 921 John F. Kennedy Blvd, North Bergen, NJ 07047. Reservations: 201-455-6055.",
+    "assets/promo-havana-sep6.jpg": "Fuego Brunch presents Havana All White Party — Sunday September 6, 12 PM to 4 PM. Good food, live music, Cuban vibes. $45 per person, 2 hours of unlimited brunch. Come dressed in white!",
+    "assets/promo-ignite-oct22.png": "Ignite at Fuego, October Edition, with Cars &amp; Social — Thursday October 22nd, 6:30 to 9:30 PM. North Bergen, NJ. Reserve your experience online.",
+    "assets/promo-ladies-night.jpg": "Fuego Ladies&#8217; Night — every Thursday, 7 PM to 11 PM. Ladies receive their first cocktail complimentary. Live DJ — DJ OZ. So grab your girls and make Thursday your night at Fuego. (201) 455-6055, 921 John F. Kennedy Blvd, North Bergen, NJ.",
+    "assets/promo-latinjazz-oct16.png": "Latin Jazz Night &amp; Beyond featuring Oriente López Trío — Friday, October 16, 7:00 PM to 9:30 PM. Fuego Steakhouse &amp; Bar, 921 Kennedy Blvd, North Bergen, NJ. 201-455-6055.",
+    "assets/promo-latinsat-oct24.png": "Latin Saturdays — salsa, bachata, merengue, Latin house. Music by DJ AlexPro. Saturday, October 24, music 9 PM to 1 AM. No cover, free parking. 921 John F. Kennedy Blvd, North Bergen, NJ 07047. Reservations: 201-455-6055.",
+    "assets/promo-latinvibe-oct10.jpg": "Latin Vibe Saturday — Saturday October 10th, music by DJ AlexPro. Music from 9 PM, free parking, no cover. 921 JFK Blvd, North Bergen, NJ. Reservations: 201-455-6055.",
+    "assets/promo-latinvibe-sep19.jpg": "Latin Vibe Saturday — Saturday September 19, music by DJ AlexPro. Music from 9 PM, free parking, no cover. 921 JFK Blvd, North Bergen, NJ. 201-824-8600.",
+    "assets/promo-latinvibe-sep5.jpg": "Latin Vibe Saturday — Saturday September 5th, music by DJ Alex Pro. Music from 9 PM, free parking, no cover. 921 JFK Blvd, North Bergen, NJ. Reservations: 201-864-8600.",
+    "assets/promo-latinvibe.jpg": "Latin Vibe Saturday — Saturday, August 15 featuring DJ Alex Pro. Music from 9 PM, free parking, no cover. 921 JFK Blvd, North Bergen, NJ. Reservations: 201-864-8600.",
+    "assets/promo-queloque-brunch-nov8.png": "Qué Lo Qué Brunch — Sunday, November 8, 12:00 PM to 4:00 PM. $59 per person, includes unlimited buffet, welcome drink, live entertainment and surprise hour. Reserve your table at fuegosteaks.com.",
+    "assets/promo-romero-aug21.jpg": "An Evening of Flamenco, Jazz and Progressive Music — Romero Flamenco Progressive Trio with Natalia Sánchez, Romero and David Silliman. Friday August 21 at 7:30 PM at Fuego Steakhouse &amp; Bar.",
+    "assets/promo-romero-nov6.png": "Romero Flamenco Progressive Trio with Paloma de Vega and Cristina Candela — Friday, November 6, 2026 at 7:30 PM. Fuego Steakhouse &amp; Bar, North Bergen, NJ. (201) 455-6055.",
+    "assets/promo-romero-oct23.jpg": "Romero Flamenco Progressive Trio with Marisa Clemente and Cristina Candela — Friday October 23rd 2026 at 7:30 PM. Fuego Steakhouse &amp; Bar, North Bergen, NJ. (201) 455-6055.",
+    "assets/promo-romero-sep18.jpg": "Romero Flamenco Progressive Trio with Paloma de Vega y Marisa Clementi — Thursday September 18 at 7:30 PM at Fuego Steakhouse &amp; Bar, North Bergen, NJ.",
+    "assets/promo-romero-sep4.jpg": "Fuego Steakhouse &amp; Bar Live Music — Romero Trio Live: Cristina Candela (baile), Luis Ossa (percusion), Romero (guitar &amp; vocals). Friday September 4 at 7:30 PM. Live music, tapas, cocktails, steaks. Reserve your table: 201-455-6055.",
+    "assets/promo-thanksgiving-nov26.png": "Celebrate Thanksgiving at Fuego — Thursday, November 26. Full menu available. Reserve your table. Fuego Steakhouse & Bar, 921 JFK Blvd, North Bergen, NJ. (201) 455-6055.",
+    "assets/promo-tulum-oct4.jpg": "Tulum Mexican Brunch — Sunday October 4, 2026, 12:00 PM to 3:00 PM. Mariachis, live DJ, Baile Folclorico. $45 per person, no liquor included. 921 John F. Kennedy Blvd, North Bergen, NJ.",
+    "assets/slot-menu-brunch.webp": "Weekend breakfast at Fuego",
+    "assets/slot-menu-dinner.webp": "Prime steak from the Fuego Main Menu",
+    "assets/slot-signature-tomahawk.webp": "Horizontal branded Fuego tomahawk steak finished over open flame"
+   }
+  },
+  "large-events.html": {
+   "lang": "en",
+   "title": "Private Events | Fuego Steakhouse &amp; Bar — North Bergen, NJ",
+   "description": "Host your next celebration at Fuego Steakhouse & Bar in North Bergen, NJ. Corporate events, birthdays, engagements, showers, and holiday parties with custom menus, semi-private spaces, and full buyouts.",
+   "robots": "",
+   "canonical": "",
+   "og": {
+    "og:title": "Private Events | Fuego Steakhouse & Bar",
+    "og:description": "Corporate dinners, birthdays, engagements, showers & holiday parties — custom menus, dedicated coordination, and unforgettable atmosphere in North Bergen, NJ.",
+    "og:image": "assets/photos/private-events-hero.jpg"
+   },
+   "verify": {
+    "facebook-domain-verification": "omjopdp30jx8jbl03cjqd38315u0s4"
+   },
+   "schema": [
+    {
+     "types": "Restaurant",
+     "hash": "ee17e329a60c"
+    }
+   ],
+   "tags": [
+    "G-9W4G1DC2TT",
+    "MetaPixel-603324592033992"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "assets/final-cta.jpg": "Elegantly set Fuego Steakhouse & Bar dining room ready for a private event",
+    "assets/fuego-logo.png": "Fuego Steakhouse & Bar",
+    "assets/photos/DSC00114.jpg": "A handcrafted Fuego cocktail plated for a private celebration",
+    "assets/photos/private-events-hero.jpg": "A full dining room of guests celebrating together at Fuego Steakhouse & Bar"
+   }
+  },
+  "menus.html": {
+   "lang": "en",
+   "title": "Menus | Fuego Steakhouse &amp; Bar — North Bergen, NJ",
+   "description": "Explore the menus at Fuego Steakhouse & Bar in North Bergen, NJ — premium steaks and seafood all day, weekend breakfast, lunch specials, and a vibrant happy hour.",
+   "robots": "",
+   "canonical": "",
+   "og": {
+    "og:title": "Menus | Fuego Steakhouse & Bar",
+    "og:description": "Premium steaks, fresh seafood, handcrafted cocktails, weekend breakfast, and curated selections at Fuego Steakhouse & Bar."
+   },
+   "verify": {
+    "facebook-domain-verification": "omjopdp30jx8jbl03cjqd38315u0s4"
+   },
+   "schema": [
+    {
+     "types": "Menu",
+     "hash": "761a3597ce8e"
+    }
+   ],
+   "tags": [
+    "G-9W4G1DC2TT",
+    "MetaPixel-603324592033992"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "assets/final-cta.jpg": "Elegantly set Fuego Steakhouse & Bar dining room with red florals and gold chandeliers",
+    "assets/fuego-logo.png": "Fuego Steakhouse & Bar",
+    "assets/hero-tomahawk.jpg": "Flame-finished tomahawk steak branded with the Fuego Steakhouse & Bar mark, with chimichurri and rosemary"
+   }
+  },
+  "thank-you.html": {
+   "lang": "en",
+   "title": "Thank You | Fuego Steakhouse &amp; Bar",
+   "description": "Thank you for reaching out to Fuego Steakhouse & Bar in North Bergen, NJ.",
+   "robots": "noindex",
+   "canonical": "",
+   "og": {},
+   "verify": {
+    "facebook-domain-verification": "omjopdp30jx8jbl03cjqd38315u0s4"
+   },
+   "schema": [],
+   "tags": [
+    "G-9W4G1DC2TT",
+    "MetaPixel-603324592033992"
+   ],
+   "markers": [],
+   "preloads": [],
+   "h1": 1,
+   "scripts": [],
+   "alts": {
+    "assets/fuego-logo.png": "Fuego Steakhouse & Bar"
+   }
+  }
+ },
+ "files": {
+  "404.html": true,
+  "_redirects": true,
+  "llms.txt": true,
+  "robots.txt": true,
+  "sitemap.xml": true
+ },
+ "tagFiles": {},
+ "robots": [
+  "User-agent: *",
+  "Allow: /",
+  "Disallow: /admin/",
+  "Disallow: /api/",
+  "Disallow: /thank-you",
+  "Disallow: /entertainment",
+  "Sitemap: https://www.fuegosteaks.com/sitemap.xml"
+ ],
+ "redirects": [
+  "/private-events /large-events 301",
+  "/events /entertainment 301",
+  "/reviews-gallery /gallery 301",
+  "/gift-cards-rewards /gift-cards 301",
+  "/brunch /menus 301",
+  "/brunch-menu /menus 301",
+  "/assets/brunch-menu.pdf /menus 301",
+  "/reservations / 301",
+  "/online-ordering https://order.toasttab.com/online/fuegosteaks 301",
+  "/online-orering https://order.toasttab.com/online/fuegosteaks 301",
+  "/about-us / 301",
+  "/careers / 301"
+ ],
+ "sitemap": [
+  "https://www.fuegosteaks.com/",
+  "https://www.fuegosteaks.com/contact",
+  "https://www.fuegosteaks.com/gallery",
+  "https://www.fuegosteaks.com/gift-cards",
+  "https://www.fuegosteaks.com/large-events",
+  "https://www.fuegosteaks.com/menus"
+ ]
+}

@@ -1,0 +1,17 @@
+# Copy to .github/workflows/seo-guard.yml in each site repo.
+# Shows a red X on a pull request or push that would erase SEO work.
+# Cloudflare runs the same check before deploying; this just shows it earlier.
+name: SEO guard
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  seo-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/seo-guard.mjs
