@@ -37,3 +37,8 @@ tweaks-panel.jsx
 # Claude Design prototype files (visual reference only, not live)
 *.dc.html
 support.js
+
+# SEO guard (build-time check, not part of the public site)
+tools/
+seo-lock.json
+SEO-GUARD.md
